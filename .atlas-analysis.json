@@ -1,0 +1,92 @@
+{
+  "projectType": "saas",
+  "projectName": "CalcANTT",
+  "projectDescription": "A platform for calculating minimum road freight rates based on the official ANTT table, with API integration, cargo management, and webhook support.",
+  "theme": "almond",
+  "primaryColor": "#2563eb",
+  "lightColor": "#eff6ff",
+  "darkColor": "#1e3a8a",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "plans"
+            ]
+          },
+          {
+            "group": "Using the Platform",
+            "pages": [
+              "guides/calculator",
+              "guides/cargo-management",
+              "guides/antt-table",
+              "guides/dashboard"
+            ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "integrations/api-keys",
+              "integrations/webhooks",
+              "integrations/marketplace",
+              "integrations/logs"
+            ]
+          },
+          {
+            "group": "Account & Settings",
+            "pages": [
+              "settings/users",
+              "settings/billing",
+              "settings/faq"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api-reference/overview",
+              "api-reference/authentication"
+            ]
+          },
+          {
+            "group": "Endpoints",
+            "pages": [
+              "api-reference/calculate",
+              "api-reference/cargos",
+              "api-reference/vehicle-types"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "ANTT-compliant minimum freight rate calculator with support for 9 vehicle types and 8 body types",
+    "Public REST API with API Key authentication for ERP/TMS integration",
+    "Cargo management with import via Excel, status tracking, and audit logs",
+    "Webhook notifications for cargo lifecycle events (created, calculated, cancelled)",
+    "Multi-user company accounts with role-based access and usage limits per plan",
+    "Real-time dashboard with usage metrics and calculation history",
+    "Route-based distance calculation via CEP (postal code) origin and destination",
+    "Integration marketplace with support for mapping providers (HERE, Google, TomTom, Mapbox) and logistics platforms"
+  ],
+  "publicApiSurface": [
+    "POST /api/public/v1/calculadora/calcular",
+    "GET /api/public/v1/calculadora/tipos-veiculo",
+    "GET /api/public/v1/calculadora/tipos-carga",
+    "POST /api/public/v1/cargas",
+    "GET /api/public/v1/cargas/{id}",
+    "POST /api/public/v1/cargas/{id}/calcular",
+    "POST /api/public/v1/cargas/{id}/cancelar",
+    "POST /api/v1/webservice/empresas"
+  ]
+}

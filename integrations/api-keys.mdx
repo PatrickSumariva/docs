@@ -1,0 +1,95 @@
+---
+title: "Crie, configure e revogue chaves de API na calcANTT"
+description: "Gere chaves de API com escopos para os ambientes PRODUCAO ou SANDBOX, atribua permissões CALCULAR_FRETE ou GERENCIAR_CARGAS e gerencie o ciclo de vida das chaves na calcANTT."
+---
+
+As chaves de API autenticam seus sistemas externos — ERPs, plataformas TMS e automações personalizadas — na API pública da calcANTT. Cada chave é vinculada a um ambiente específico e a um conjunto de permissões, dando a você controle granular sobre o que cada integração pode fazer.
+
+## Criando uma chave de API
+
+<Steps>
+  <Step title="Abra Chave de API & Marketplace">
+    Navegue até **Integrações → Chave de API & Marketplace** na barra lateral.
+  </Step>
+  <Step title="Clique em Nova Chave de API">
+    Clique no botão **Nova Chave de API** no topo da lista de chaves.
+  </Step>
+  <Step title="Preencha os detalhes da chave">
+    Configure os seguintes campos:
+
+    | Campo | Descrição |
+    | --- | --- |
+    | `nome` | Nome de exibição para identificar esta chave (ex.: `ERP Produção`). |
+    | `ambiente` | `PRODUCAO` para integrações em produção, `SANDBOX` para testes. |
+    | `permissoes` | Uma ou mais permissões — veja a tabela abaixo. |
+    | `expiracaoEm` | Data de expiração ISO 8601 opcional. Deixe em branco para sem expiração. |
+  </Step>
+  <Step title="Atribua permissões">
+    Escolha as permissões que sua integração precisa:
+
+    | Permissão | Endpoints desbloqueados |
+    | --- | --- |
+    | `CALCULAR_FRETE` | `POST /api/public/v1/calculadora/calcular`<br />`GET /api/public/v1/calculadora/tipos-veiculo`<br />`GET /api/public/v1/calculadora/tipos-carga` |
+    | `GERENCIAR_CARGAS` | `POST /api/public/v1/cargas`<br />`GET /api/public/v1/cargas/{id}`<br />`POST /api/public/v1/cargas/{id}/calcular`<br />`POST /api/public/v1/cargas/{id}/cancelar` |
+    | `WEBSERVICE_CADASTRO` | `POST /api/v1/webservice/empresas` — chave dedicada para fluxos de cadastro. |
+  </Step>
+  <Step title="Salve e copie a chave imediatamente">
+    Após confirmar, a calcANTT exibe o `chaveCompleta` — o valor completo da chave de API — **exatamente uma vez**. Copie agora e armazene em um gerenciador de segredos ou variável de ambiente.
+  </Step>
+</Steps>
+
+<Warning>
+  A chave completa (`chaveCompleta`) é exibida somente no momento da criação. Seu formato é `calt_live_xxxxx`. Se você fechar o diálogo sem copiá-la, será necessário revogar a chave e criar uma nova. A calcANTT não armazena o valor em texto puro.
+</Warning>
+
+## Usando sua chave de API
+
+Passe a chave como um token Bearer no cabeçalho `Authorization` de cada requisição:
+
+```bash
+curl -H "Authorization: Bearer calt_live_sua_chave_aqui" \
+  https://your-domain/api/public/v1/calculadora/calcular
+```
+
+## Ambientes de chave
+
+<CardGroup cols={2}>
+  <Card title="PRODUCAO" icon="globe">
+    Chaves de produção para integrações reais. As requisições contam para as cotas do seu plano e aparecem nos logs de integração.
+  </Card>
+
+  <Card title="SANDBOX" icon="flask-conical">
+    Chaves de teste para desenvolvimento e QA. As requisições não contam para as cotas de produção.
+  </Card>
+</CardGroup>
+
+## Ciclo de vida da chave
+
+Cada chave de API tem um campo `status` que reflete seu estado atual:
+
+| Status | Significado |
+| --- | --- |
+| `ATIVA` | A chave é válida e aceita requisições. |
+| `INATIVA` | A chave foi desabilitada manualmente, mas não removida permanentemente. |
+| `REVOGADA` | A chave foi invalidada permanentemente e não pode ser usada. |
+
+Para revogar uma chave, abra sua visualização de detalhes e envie uma solicitação de revogação com um `motivo` (motivo da revogação). A revogação é **irreversível** — uma chave revogada não pode ser reativada. Se precisar de acesso novamente, crie uma nova chave com as mesmas permissões.
+
+Cada chave também rastreia:
+
+- `totalRequisicoes` — número total de requisições feitas com esta chave.
+- `ultimaRequisicao` — timestamp da requisição mais recente.
+
+## Limites do plano
+
+Seu plano define `limiteApiKeys`, o número máximo de chaves ativas que você pode ter ao mesmo tempo. Um contador `ativas` mostra quantas você está usando atualmente. Para verificar seu uso atual, acesse **Integrações → Chave de API & Marketplace** ou o painel da sua conta.
+
+<Note>
+  Planos Enterprise definem `limite` como `-1`, o que significa chaves ativas ilimitadas.
+</Note>
+
+## Mantendo as chaves seguras
+
+<Warning>
+  Nunca incorpore chaves de API em código client-side, as inclua em repositórios públicos ou as compartilhe via chat ou e-mail. Armazene as chaves em variáveis de ambiente ou em um gerenciador de segredos dedicado, e as rotacione regularmente.
+</Warning>

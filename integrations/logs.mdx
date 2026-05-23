@@ -1,0 +1,64 @@
+---
+title: "Monitore a atividade da API com os logs de integração da calcANTT"
+description: "Use os logs de integração da calcANTT para auditar cada requisição de Chave de API, diagnosticar erros com IDs de correlação e acompanhar o consumo do plano em tempo real."
+---
+
+A calcANTT registra cada chamada de API feita com suas chaves de API nos logs de integração, dando a você visibilidade total das requisições externas. Use os logs para monitorar a saúde do uso, diagnosticar falhas e verificar se suas integrações estão se comportando conforme esperado.
+
+## O que é registrado
+
+Cada entrada `RequestLog` captura o contexto completo de uma única requisição de cálculo:
+
+| Campo | Descrição |
+| --- | --- |
+| `correlationId` | Identificador único para esta requisição. Incluído em cada resposta da API. |
+| `timestamp` | Timestamp ISO 8601 de quando a requisição foi recebida. |
+| `latencyMs` | Tempo total de resposta em milissegundos. |
+| `status` | Resultado da requisição: `SUCCESS`, `VALIDATION_ERROR` ou `SYSTEM_ERROR`. |
+| `errorMessage` | Detalhes do erro quando `status` não é `SUCCESS`. `null` em requisições bem-sucedidas. |
+| `request.numEixos` | Número de eixos enviado na requisição de cálculo. |
+| `request.tipoCargaId` | ID do tipo de carga enviado na requisição de cálculo. |
+| `request.distanciaKm` | Distância em quilômetros usada para o cálculo. |
+| `request.dataCarga` | Data da carga usada para selecionar a tabela ANTT ativa. |
+| `response.valorMinimo` | Valor mínimo de frete retornado pela calcANTT. `null` em caso de erro. |
+| `response.versaoTabela` | Versão da tabela ANTT usada para este cálculo. `null` em caso de erro. |
+| `cacheStatus` | Se o resultado foi servido do cache: `HIT` ou `MISS`. |
+| `apiVersion` | Versão da API usada para a requisição. |
+| `clientPlan` | O plano associado à chave de API que fez a requisição. |
+
+## Acessando os logs
+
+<Steps>
+  <Step title="Abra a página de logs">
+    Navegue até **Integrações → Logs de integração** na barra lateral.
+  </Step>
+  <Step title="Revise a tabela de logs">
+    A tabela lista as requisições recentes em ordem cronológica inversa. Cada linha mostra o ID de correlação, status, latência e timestamp de forma rápida.
+  </Step>
+  <Step title="Filtre os resultados">
+    Use o painel de filtros para refinar os resultados por status, intervalo de datas ou pesquise pelo `correlationId`. Os resultados são paginados com controles `page`, `size`, `totalElements` e `totalPages`.
+  </Step>
+  <Step title="Abra uma entrada de log">
+    Clique em qualquer linha para abrir a visualização detalhada. Ela mostra os objetos completos de `request` e `response`, status do cache e mensagem de erro se a requisição falhou.
+  </Step>
+</Steps>
+
+<Note>
+  O acesso a **Logs de integração** requer que a funcionalidade `LOGS_INTEGRACAO` esteja habilitada no seu plano. Entre em contato com o suporte se esta página não estiver disponível na sua conta.
+</Note>
+
+## Usando o correlationId para depuração
+
+Cada resposta da API pública da calcANTT inclui um `correlationId`. Quando uma requisição falha ou retorna resultados inesperados, copie o `correlationId` da resposta e use-o para localizar a entrada exata no log:
+
+1. Abra **Integrações → Logs de integração**.
+2. Pesquise pelo `correlationId` no painel de filtros.
+3. Abra a entrada correspondente para ver o payload da requisição, corpo da resposta e mensagem de erro.
+
+<Tip>
+  Inclua o `correlationId` sempre que entrar em contato com o suporte da calcANTT sobre uma requisição específica. Isso permite que a equipe de suporte localize o registro do servidor imediatamente.
+</Tip>
+
+## Trilha de auditoria no nível da carga
+
+Os logs de integração mostram a atividade no nível de requisição para todas as chamadas de chave de API. Para uma visão mais ampla do que aconteceu com um registro de carga específico — incluindo cálculos, edições e cancelamentos — abra **Cargas**, selecione a carga e veja a aba **Logs**.

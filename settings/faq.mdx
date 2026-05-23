@@ -1,0 +1,156 @@
+---
+title: "FAQ da calcANTT: cálculos, conformidade e faturamento"
+description: "Respostas para dúvidas comuns sobre conformidade com a ANTT, cálculos de frete, tipos de veículo e carga, comportamento da API e gestão de conta na calcANTT."
+---
+
+Respostas para dúvidas comuns sobre o uso da calcANTT, interpretação de cálculos de frete e gerenciamento da sua conta. Se sua dúvida não estiver respondida aqui, abra o widget de suporte na barra lateral ou entre em contato com a equipe calcANTT.
+
+<AccordionGroup>
+  <Accordion title="O que é a tabela ANTT e por que ela importa?">
+    A ANTT (Agência Nacional de Transportes Terrestres) é o regulador federal de transporte terrestre do Brasil. Ela publica uma tabela de piso de frete obrigatório que define preços mínimos para o transporte rodoviário de cargas em todo o país. Contratos de frete com valores abaixo desses mínimos são ilegais segundo a legislação brasileira.
+
+    A calcANTT mantém a tabela ANTT atualizada e a aplica automaticamente em cada cálculo. Isso significa que você pode verificar se qualquer `valorFrete` declarado (valor do frete) atende ao mínimo legal antes de assinar um contrato ou auditar os existentes — protegendo sua empresa de multas e riscos de conformidade.
+  </Accordion>
+
+  <Accordion title="Quais tipos de veículo a calcANTT suporta?">
+    A calcANTT suporta todas as nove categorias de veículos definidas na tabela ANTT:
+
+    | Código | Descrição |
+    | --- | --- |
+    | `CAMINHAO_LEVE` | Caminhão Leve |
+    | `CAMINHAO_TOCO` | Caminhão Toco |
+    | `CAMINHAO_TRUCK` | Caminhão Truck |
+    | `TRUCK_3_EIXOS` | Truck 3 Eixos |
+    | `CARRETA_4_EIXOS` | Carreta 4 Eixos |
+    | `CARRETA_5_EIXOS` | Carreta 5 Eixos |
+    | `CARRETA_6_EIXOS` | Carreta 6 Eixos |
+    | `BITREM_7_EIXOS` | Bitrem 7 Eixos |
+    | `RODOTREM_9_EIXOS` | Rodotrem 9 Eixos |
+
+    Selecione o tipo de veículo que corresponde à configuração do caminhão usado na operação de frete. O número de eixos afeta diretamente a taxa mínima aplicada.
+  </Accordion>
+
+  <Accordion title="Quais tipos de carroceria e carga são suportados?">
+    A calcANTT suporta todos os oito tipos de carroceria definidos na tabela ANTT:
+
+    | Código | Descrição |
+    | --- | --- |
+    | `GRANELEIRO` | Graneleiro |
+    | `FRIGORIFICO` | Frigorífico |
+    | `PORTA_CONTAINER` | Porta Container |
+    | `SIDER` | Sider |
+    | `BAU` | Baú |
+    | `TANQUE` | Tanque |
+    | `PLATAFORMA` | Plataforma |
+    | `CARGA_GERAL` | Carga Geral |
+
+    O tipo de carga afeta quais multiplicadores e componentes de taxa se aplicam ao cálculo. Se não tiver certeza sobre qual tipo selecionar, consulte o documento de transporte (CT-e) ou a sua equipe de operações.
+  </Accordion>
+
+  <Accordion title="Por que meu cálculo retorna múltiplas tabelas?">
+    A ANTT publica mais de uma tabela de fretes, e múltiplas tabelas podem estar ativas na mesma data simultaneamente. Por exemplo, uma tabela padrão e uma tabela de alto desempenho podem ser aplicáveis dependendo das características do veículo e da rota.
+
+    Quando você executa um cálculo, a calcANTT retorna todas as tabelas válidas na data da carga que você informou. Cada entrada contém o nome da tabela, componentes e o valor mínimo total.
+
+    Você seleciona a tabela mais adequada para a sua operação e a registra no cadastro de carga. Essa seleção é o que a verificação de conformidade (`valorAtendido`) usa para determinar se o valor de frete declarado atende ao mínimo legal.
+  </Accordion>
+
+  <Accordion title="O que significa cacheHit: true na resposta da API?">
+    A calcANTT armazena resultados de cálculos em cache no Redis. Quando você envia uma requisição com parâmetros idênticos — mesmo tipo de veículo, tipo de carga, distância e data — a uma requisição anterior recente, o sistema serve o resultado diretamente do cache em vez de recalcular do zero.
+
+    Uma resposta em cache é indicada por `"cacheHit": true` no corpo da resposta. O resultado é **idêntico** a um cálculo recém-executado; nada é aproximado ou estimado. Resultados em cache respondem mais rápido, mas ainda contam para as cotas mensais de cálculo e requisições.
+
+    ```json
+    {
+      "cacheHit": true,
+      "correlationId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "calculadoEm": "2025-03-15T10:42:00Z"
+    }
+    ```
+
+    Se precisar forçar um novo cálculo — por exemplo, após uma atualização de tabela — entre em contato com o suporte para limpar o cache para os seus parâmetros específicos.
+  </Accordion>
+
+  <Accordion title="O que significa valorAtendido?">
+    `valorAtendido` é definido em cada registro de carga após a execução do cálculo de frete. Reflete se o `valorFrete` declarado (o preço acordado no contrato) atende ao mínimo da ANTT:
+
+    | Valor | Significado |
+    | --- | --- |
+    | `ATENDE` | O `valorFrete` declarado é igual ou superior ao mínimo da ANTT. O frete está em conformidade. |
+    | `NAO_ATENDE` | O `valorFrete` declarado está abaixo do mínimo da ANTT. O frete não cumpre o piso legal. |
+    | `NAO_INFORMADO` | Nenhum `valorFrete` foi registrado neste cadastro de carga. A conformidade não pode ser determinada. |
+
+    Você pode filtrar sua lista de cargas por `valorAtendido` para identificar rapidamente registros não conformes que precisam de atenção.
+  </Accordion>
+
+  <Accordion title="O que acontece quando atinjo meu limite mensal?">
+    A calcANTT aplica os limites definidos pelo seu plano (`limiteRequisicoesMes`, `limiteCalculosMes`, `limiteImportacaoCargas`). Quando um limite é atingido:
+
+    - **Requisições de API** além de `limiteRequisicoesMes` são rejeitadas com erro HTTP `429`.
+    - **Cálculos** além de `limiteCalculosMes` são bloqueados.
+    - **Importações Excel** além de `limiteImportacaoCargas` são rejeitadas.
+
+    Você tem duas opções para restaurar o acesso antes da renovação do ciclo:
+
+    1. **Adquira um add-on** — em **Configurações → Plano**, solicite um add-on `REQUISICOES`, `CALCULOS` ou `IMPORTACAO` para aumentar a cota específica que você esgotou.
+    2. **Aguarde o próximo ciclo de faturamento** — seus contadores são resetados automaticamente no início do próximo período. Você pode ver quantos dias faltam em `diasRestantesCiclo` na página do Plano.
+
+    <Warning>
+      Os limites são aplicados em tempo real. Requisições enviadas após o limite ser atingido não são enfileiradas — elas falham imediatamente e devem ser reenviadas quando a cota estiver disponível.
+    </Warning>
+  </Accordion>
+
+  <Accordion title="Como recupero uma chave de API revogada?">
+    Você não pode recuperar ou reativar uma chave de API revogada. Uma vez revogada, ela é invalidada permanentemente e não pode ser usada novamente.
+
+    Para restaurar o acesso à API:
+
+    1. Acesse **Integrações → Chave de API & Marketplace**.
+    2. Clique em **Nova chave de API** para gerar uma substituta.
+    3. Atualize todos os sistemas ou scripts que usavam a chave antiga com o novo valor.
+
+    <Warning>
+      Copie e armazene sua nova chave de API imediatamente após a criação. A calcANTT exibe a chave completa apenas uma vez no momento da criação e armazena somente uma versão com hash por segurança.
+    </Warning>
+
+    O número de chaves de API que você pode ter ativas ao mesmo tempo é controlado pelo `limiteApiKeys` do seu plano. Se você atingiu esse limite, revogue uma chave não utilizada antes de criar uma nova, ou adquira um add-on `API_KEY` para aumentar o limite.
+  </Accordion>
+
+  <Accordion title="O que é o correlationId nas respostas da API?">
+    Cada requisição de API processada pela calcANTT recebe um `correlationId` único — um UUID gerado no servidor e incluído em todas as respostas, incluindo respostas de erro.
+
+    ```json
+    {
+      "correlationId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "valorMinimo": 1250.00,
+      "valorCalculado": 1250.00
+    }
+    ```
+
+    Use o `correlationId` para:
+
+    - **Localizar uma requisição específica** em **Integrações → Logs** pesquisando ou filtrando pelo ID de correlação.
+    - **Contatar o suporte** — sempre inclua o `correlationId` ao reportar um resultado inesperado ou erro. Isso permite que a equipe calcANTT recupere a entrada exata do log do servidor e reproduza o problema.
+
+    O `correlationId` é a forma mais rápida de rastrear qualquer requisição de ponta a ponta.
+  </Accordion>
+
+  <Accordion title="O cálculo de distância por CEP funciona sem configuração extra?">
+    Não. O cálculo de distância por CEP requer uma **integração de mapas** ativa configurada na sua conta. A calcANTT suporta os seguintes provedores pelo marketplace de Integrações:
+
+    - **HERE Maps**
+    - **Google Maps**
+    - **TomTom**
+    - **Mapbox**
+
+    Para habilitar o roteamento por CEP:
+
+    1. Acesse **Integrações → Chave de API & Marketplace**.
+    2. Encontre o provedor de mapas de sua preferência e ative a integração.
+    3. Insira suas credenciais de API para esse provedor.
+
+    Uma vez configurado, você pode fornecer CEPs de origem e destino em vez de `distanciaKm`, e a calcANTT resolverá a distância da rota automaticamente antes de calcular o frete.
+
+    Se nenhuma integração de mapas estiver ativa, você deve informar `distanciaKm` manualmente em cada requisição de cálculo. Requisições que incluam apenas CEPs sem uma integração de mapas ativa retornarão um erro de validação.
+  </Accordion>
+</AccordionGroup>

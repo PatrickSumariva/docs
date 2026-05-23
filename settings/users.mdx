@@ -1,0 +1,95 @@
+---
+title: "Gerencie membros da equipe, perfis e acessos na calcANTT"
+description: "Convide membros da equipe, atribua perfis Administrador, Financeiro ou Padrão e gerencie a ativação e o acesso SSO na sua conta empresarial da calcANTT."
+---
+
+A calcANTT suporta contas empresariais com múltiplos usuários. Você pode convidar membros da equipe, atribuir perfis e gerenciar acessos em **Configurações → Usuários**. Todos os usuários da sua conta compartilham os mesmos dados no nível da empresa, e seu plano determina o número máximo de usuários ativos permitidos.
+
+## Convidando usuários
+
+<Steps>
+  <Step title="Abra a página de Usuários">
+    Navegue até **Configurações → Usuários** na barra lateral.
+  </Step>
+  <Step title="Clique em Convidar">
+    Selecione **Convidar** para abrir o formulário de convite.
+  </Step>
+  <Step title="Insira os dados do usuário">
+    Informe o nome, endereço de e-mail do novo usuário e escolha um perfil. Consulte [Perfis de usuário](#perfis-de-usuario) abaixo para orientação sobre qual perfil atribuir.
+  </Step>
+  <Step title="Envie o convite">
+    Envie o formulário. A calcANTT envia um e-mail de ativação para o endereço informado. O status do usuário é definido como **Pendente de ativação** até que ele conclua o processo.
+  </Step>
+</Steps>
+
+<Note>
+  E-mails de convite às vezes podem cair em pastas de spam ou promoções. Peça ao seu colega que verifique lá se o e-mail não chegar em alguns minutos.
+</Note>
+
+## Limites de usuários
+
+Seu plano controla o número máximo de usuários que sua empresa pode ter ativos ao mesmo tempo. Você pode ver ambos os valores na página **Configurações → Plano**, abaixo das barras de uso.
+
+| Campo | Descrição |
+| --- | --- |
+| `limiteUsuarios` | Máximo de usuários permitidos no seu plano atual. `-1` significa ilimitado. |
+| `utilizadoUsuarios` | Número de usuários atualmente contados no seu limite. |
+
+Quando `utilizadoUsuarios` atinge `limiteUsuarios`, novos convites são bloqueados até que você faça upgrade do plano ou remova usuários existentes.
+
+<Tip>
+  Remova membros inativos ou ex-membros da equipe para liberar vagas antes de convidar novos. Acesse **Configurações → Usuários**, abra o painel de detalhes do usuário e defina seu status como **Inativo**.
+</Tip>
+
+## Perfis de usuário
+
+A calcANTT tem três perfis de usuário (`PerfilCliente`), cada um com um nível diferente de acesso:
+
+<CardGroup cols={3}>
+  <Card title="Administrador" icon="shield">
+    Acesso total a todas as configurações, incluindo gestão de usuários, faturamento, integrações e alterações de plano. Administradores podem convidar, editar e remover outros usuários.
+  </Card>
+
+  <Card title="Financeiro" icon="receipt">
+    Acesso às funcionalidades de faturamento e notas fiscais. Usuários Financeiros podem visualizar e gerenciar informações de pagamento, mas não podem gerenciar outros usuários ou integrações.
+  </Card>
+
+  <Card title="Padrão" icon="user">
+    Acesso operacional do dia a dia: calculadora, registros de carga e relatórios. Usuários Padrão não podem gerenciar usuários, faturamento ou integrações.
+  </Card>
+</CardGroup>
+
+Apenas usuários com o perfil **Administrador** (`ADMINISTRADOR`) podem convidar e gerenciar outros usuários. Se precisar alterar o perfil de um usuário, abra o registro desse usuário na tabela de Usuários e edite o campo **Perfil**.
+
+## Ativação de conta
+
+Quando você convida um usuário, a conta começa com o status `PENDENTE_ATIVACAO`. O usuário deve clicar no link de ativação no e-mail enviado pela calcANTT para definir uma senha e ativar sua conta. Os status possíveis são:
+
+| Status | Significado |
+| --- | --- |
+| `ATIVO` | Ativo — o usuário pode fazer login normalmente. |
+| `PENDENTE_ATIVACAO` | Convidado, mas ainda não ativado pelo link enviado por e-mail. |
+| `INATIVO` | Desativado — o login está bloqueado. |
+| `BLOQUEADO` | Bloqueado por um administrador — o login está bloqueado. |
+
+Usuários com status diferente de `ATIVO` não conseguem fazer login. Se um usuário relatar que não consegue acessar a conta, verifique o status dele em **Configurações → Usuários** e reative-o se necessário.
+
+Se um link de ativação tiver expirado, você pode reenviar o convite pelo painel de detalhes do usuário.
+
+## Redefinição de senha
+
+Os usuários podem redefinir a própria senha a qualquer momento sem envolvimento do administrador:
+
+1. Na página de login da calcANTT, clique em **Esqueci minha senha**.
+2. Insira o endereço de e-mail da conta.
+3. Siga o link enviado por e-mail para definir uma nova senha.
+
+Este fluxo está disponível para todos os usuários independentemente do perfil.
+
+## SSO e login social
+
+A calcANTT suporta login via **Google** e **Microsoft** além de e-mail e senha. Os usuários podem se autenticar com sua conta Google ou Microsoft existente sem precisar de uma senha separada da calcANTT.
+
+<Info>
+  O login SSO está vinculado ao endereço de e-mail usado quando o usuário foi convidado. O e-mail da conta Google ou Microsoft deve corresponder ao e-mail registrado na calcANTT. Se um membro da equipe não conseguir fazer login pelo seu provedor de identidade, entre em contato com o Administrador da empresa para verificar se o e-mail registrado corresponde à conta SSO.
+</Info>

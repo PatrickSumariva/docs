@@ -1,0 +1,115 @@
+---
+title: "Crie e gerencie registros de carga para conformidade com a ANTT"
+description: "Crie registros de carga, dispare cálculos ANTT, verifique a conformidade com valorAtendido e importe ou exporte registros em massa via Excel na calcANTT."
+---
+
+O módulo **Cargas** é onde você registra operações individuais de frete e verifica se o valor de frete declarado atende ao mínimo da ANTT. Cada registro de carga armazena os parâmetros do embarque, dispara um cálculo de taxa e rastreia se o `valorFrete` declarado está em conformidade com o piso regulatório — fornecendo uma trilha de auditoria permanente para cada CT-e ou documento de transporte.
+
+## Criando um registro de carga manualmente
+
+Clique em **Nova carga** no canto superior direito da página Cargas para abrir o formulário de criação. Preencha os campos obrigatórios do `CriarCargaRequest`:
+
+| Campo | Descrição |
+| --- | --- |
+| `dataCarga` | Data da operação de frete (`yyyy-MM-dd`). Determina a versão da tabela ANTT ativa usada para o cálculo. |
+| `numero` | Número do documento de transporte (CT-e, MDF-e ou referência interna). |
+| `serie` | Identificador de série do documento. |
+| `unidade` | Nome da unidade ou filial emissora. |
+| `cnpjUnidade` | CNPJ da unidade emissora. Junto com `numero` e `serie`, forma a chave natural — a plataforma impede registros ativos duplicados. |
+| `kmTotal` | Distância total da rota em quilômetros. |
+| `tipoCargaId` | Identificador do tipo de carga, correspondente à classificação da tabela ANTT. |
+| `numEixos` | Número de eixos do veículo (2 – 9). |
+| `altoDesempenho` | `true` para o padrão de veículo de alto desempenho. |
+| `composicao` | `true` para veículos em composição / semirreboque duplo. |
+| `retornoVazio` | `true` para incluir o adicional de retorno em vazio. |
+| `valorFrete` | O valor do frete declarado no documento de transporte. Usado para comparação de conformidade com a ANTT. |
+
+Os seguintes campos são opcionais, mas recomendados:
+
+| Campo | Descrição |
+| --- | --- |
+| `transportador` | Nome da transportadora. |
+| `cnpjTransportador` | CNPJ da transportadora. |
+| `cepOrigem` | CEP de origem (CEP brasileiro). |
+| `cepDestino` | CEP de destino. |
+| `observacao` | Observações em texto livre para uso interno. |
+
+<Tip>
+  Use o campo `identificador` para armazenar o número interno do CT-e ou qualquer referência cruzada que vincule o registro de carga ao seu TMS ou ERP. Este valor aparece na lista de cargas e nas exportações, facilitando a correlação de registros da calcANTT com sistemas externos.
+</Tip>
+
+## Calculando o frete para um registro de carga
+
+Após salvar uma carga, seu `statusCalculo` é `NAO_CALCULADO`. Para calcular o mínimo ANTT:
+
+1. Selecione a carga na lista ou abra o painel de detalhes.
+2. Clique em **Calcular**. A plataforma executa o mesmo motor de cálculo de taxa que a Calculadora web, usando os parâmetros armazenados da carga.
+3. Após a conclusão, o registro é atualizado com:
+   - `valorMinimo` — o valor mínimo de frete ANTT produzido pelo cálculo.
+   - `valorAtendido` — o resultado de conformidade:
+     - `ATENDE` — o `valorFrete` declarado atende ou supera o mínimo regulatório.
+     - `NAO_ATENDE` — o valor declarado está abaixo do mínimo da ANTT.
+     - `NAO_INFORMADO` — nenhum `valorFrete` foi fornecido; nenhuma comparação é possível.
+
+Você também pode selecionar múltiplos registros de carga usando as caixas de seleção na lista e clicar em **Calcular selecionadas** para disparar o cálculo em lote para todos os itens selecionados de uma vez.
+
+## Importação em massa via Excel
+
+<Note>
+  A importação Excel é uma funcionalidade do plano controlada por `limiteImportacaoCargas`. Se o botão **Importar** estiver desabilitado, seu plano atual não inclui `IMPORTACAO_CARGAS`. Faça upgrade do plano para habilitar a importação em massa.
+</Note>
+
+<Steps>
+  <Step title="Baixe o modelo">
+    Na página Cargas, clique em **Importar** e baixe o modelo Excel. As colunas do modelo mapeiam diretamente para os campos do `CriarCargaRequest`.
+  </Step>
+  <Step title="Preencha a planilha">
+    Preencha cada linha com um registro de carga. As colunas obrigatórias correspondem aos campos obrigatórios listados na tabela acima. Deixe colunas opcionais em branco para omiti-las.
+  </Step>
+  <Step title="Faça o upload do arquivo">
+    Selecione o arquivo preenchido e confirme o upload. A plataforma processa cada linha e retorna um resumo `ImportacaoCargasResultado`:
+
+    | Campo | Descrição |
+    | --- | --- |
+    | `linhasProcessadas` | Total de linhas lidas do arquivo. |
+    | `cargasCriadas` | Novos registros de carga criados. |
+    | `cargasAtualizadas` | Registros existentes atualizados (correspondidos pela chave natural). |
+    | `cargasPuladasJaExistentes` | Linhas ignoradas porque o registro já existe e nenhuma alteração foi detectada. |
+    | `calculosSolicitados` / `calculosRealizados` | Número de cálculos de frete disparados e concluídos durante a importação. |
+    | `erros` | Erros no nível de linha com número de linha, nome da coluna e mensagem. |
+  </Step>
+</Steps>
+
+A cota de importação é controlada pela configuração `limiteImportacaoCargas` do seu plano. Um valor de `-1` significa importações ilimitadas. Linhas que falham na validação são listadas no array `erros` e não consomem sua cota de importação.
+
+## Ciclo de vida do status da carga
+
+Cada registro de carga passa pelos seguintes estados:
+
+<CardGroup cols={2}>
+  <Card title="situacao" icon="circle">
+    - **CRIADO** — registro está ativo e pode ser calculado ou editado.
+    - **CANCELADO** — registro foi permanentemente cancelado. O cancelamento é irreversível. A chave natural de um registro cancelado (`numero` \+ `serie` \+ `cnpjUnidade`) não pode ser reutilizada.
+  </Card>
+
+  <Card title="statusCalculo" icon="calculator">
+    - **NAO\_CALCULADO** — o mínimo de frete ainda não foi calculado.
+    - **CALCULADO** — o cálculo foi executado com sucesso e `valorMinimo` está preenchido.
+  </Card>
+
+  <Card title="valorAtendido" icon="check">
+    - **ATENDE** — o frete declarado atende ao mínimo da ANTT.
+    - **NAO\_ATENDE** — o frete declarado está abaixo do mínimo da ANTT.
+    - **NAO\_INFORMADO** — nenhum `valorFrete` foi declarado; a conformidade não pode ser avaliada.
+  </Card>
+</CardGroup>
+
+<Warning>
+  O cancelamento de um registro de carga é permanente. Uma vez que um registro atinge `CANCELADO`, você não pode reativá-lo nem reutilizar a combinação `numero` \+ `serie` \+ `cnpjUnidade`. Crie um novo registro com um número identificador diferente se necessário.
+</Warning>
+
+## Exportando dados de carga
+
+Para exportar a lista filtrada atual para Excel, clique em **Exportar Excel** na barra de ferramentas. O download inclui todas as colunas visíveis para cada registro que corresponde aos seus filtros ativos — útil para compartilhar relatórios de conformidade ou alimentar sistemas externos.
+
+Aplique filtros (intervalo de datas, `situacao`, `statusCalculo`, `valorAtendido`, tipo de carga, eixos ou `cnpjUnidade`) antes de exportar para delimitar a saída exatamente aos registros que você precisa.

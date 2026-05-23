@@ -1,0 +1,237 @@
+---
+title: "Conecte ferramentas de terceiros pelo marketplace da calcANTT"
+description: "Navegue e ative integrações nativas com plataformas logísticas, provedores de mapas e sistemas ERP para enriquecer seus fluxos de frete na calcANTT."
+---
+
+O marketplace de integrações da calcANTT permite conectar plataformas logísticas, provedores de mapas e ERPs para enriquecer seus fluxos de frete. Ativar uma integração desbloqueia capacidades adicionais na calculadora e nas funcionalidades de gestão de cargas sem exigir desenvolvimento customizado.
+
+O marketplace de integrações da calcANTT permite conectar plataformas logísticas, provedores de mapas e ERPs para enriquecer seus fluxos de frete. Ativar uma integração desbloqueia capacidades adicionais na calculadora e nas funcionalidades de gestão de cargas sem exigir desenvolvimento customizado.
+
+## Categorias do marketplace
+
+As integrações são agrupadas por `CategoriaIntegracao` para ajudar você a encontrar o que precisa:
+
+<CardGroup cols={2}>
+  <Card title="ERP" icon="building-2">
+    Sistemas de gestão empresarial. Sincronize fretes, registros de carga e dados de custo diretamente com seu ERP.
+  </Card>
+
+  <Card title="TMS" icon="truck">
+    Sistemas de gestão de transporte. Conecte seu TMS para disparar cálculos e receber eventos do ciclo de vida das cargas via webhooks.
+  </Card>
+
+  <Card title="MAPAS" icon="map">
+    Provedores de mapas e rotas. Habilite o cálculo de distância por CEP em vez de informar um `distanciaKm` fixo.
+  </Card>
+
+  <Card title="OUTROS" icon="plug">
+    Outras integrações que não se encaixam nas categorias acima.
+  </Card>
+</CardGroup>
+
+## Provedores de mapas
+
+O marketplace de integrações da calcANTT permite conectar plataformas logísticas, provedores de mapas e ERPs para enriquecer seus fluxos de frete. Ativar uma integração desbloqueia capacidades adicionais na calculadora e nas funcionalidades de gestão de cargas sem exigir desenvolvimento customizado.
+
+## Categorias do marketplace
+
+As integrações são agrupadas por `CategoriaIntegracao` para ajudar você a encontrar o que precisa:
+
+<CardGroup cols={2}>
+  <Card title="ERP" icon="building-2">
+    Sistemas de gestão empresarial. Sincronize fretes, registros de carga e dados de custo diretamente com seu ERP.
+  </Card>
+
+  <Card title="TMS" icon="truck">
+    Sistemas de gestão de transporte. Conecte seu TMS para disparar cálculos e receber eventos do ciclo de vida das cargas via webhooks.
+  </Card>
+
+  <Card title="MAPAS" icon="map">
+    Provedores de mapas e rotas. Habilite o cálculo de distância por CEP em vez de informar um `distanciaKm` fixo.
+  </Card>
+
+  <Card title="OUTROS" icon="plug">
+    Outras integrações que não se encaixam nas categorias acima.
+  </Card>
+</CardGroup>
+
+## Provedores de mapas
+
+Quando uma integração de mapas está ativa, a calculadora de frete aceita `cepOrigem` e `cepDestino` — CEPs brasileiros — e busca a distância rodoviária automaticamente. Sem uma integração de mapas, você deve informar `distanciaKm` diretamente em cada requisição de cálculo.Quando uma integração de mapas está ativa, a calculadora de frete aceita `cepOrigem` e `cepDestino` — CEPs brasileiros — e busca a distância rodoviária automaticamente. Sem uma integração de mapas, você deve informar `distanciaKm` diretamente em cada requisição de cálculo.
+
+A calcANTT suporta os seguintes slugs de provedores de mapas:
+
+As integrações são agrupadas por `CategoriaIntegracao` para ajudar você a encontrar o que precisa:
+
+<CardGroup cols={2}>
+  <Card title="ERP" icon="building-2">
+    Sistemas de gestão empresarial. Sincronize fretes, registros de carga e dados de custo diretamente com seu ERP.
+  </Card>
+
+  <Card title="TMS" icon="truck">
+    Sistemas de gestão de transporte. Conecte seu TMS para disparar cálculos e receber eventos do ciclo de vida das cargas via webhooks.
+  </Card>
+
+  <Card title="MAPAS" icon="map">
+    Provedores de mapas e rotas. Habilite o cálculo de distância por CEP em vez de informar um `distanciaKm` fixo.
+  </Card>
+
+  <Card title="OUTROS" icon="plug">
+    Outras integrações que não se encaixam nas categorias acima.
+  </Card>
+</CardGroup>
+
+## Provedores de mapas
+
+Quando uma integração de mapas está ativa, a calculadora de frete aceita `cepOrigem` e `cepDestino` — CEPs brasileiros — e busca a distância rodoviária automaticamente. Sem uma integração de mapas, você deve informar `distanciaKm` diretamente em cada requisição de cálculo.
+
+A calcANTT suporta os seguintes slugs de provedores de mapas:
+
+| Slug | Provedor |
+| --- | --- |
+| `here` | HERE Technologies |
+| `google` | Google Maps Platform |
+| `tomtom` | TomTom |
+| `mapbox` | Mapbox |
+
+<Note>
+  Cada provedor de mapas requer sua própria chave de API. Após ativar o card de integração, abra a folha de configuração para inserir sua chave de API do provedor. Você é responsável por manter uma assinatura válida com o provedor.
+</Note>
+
+<Note>
+  Cada provedor de mapas requer sua própria chave de API. Após ativar o card de integração, abra a folha de configuração para inserir sua chave de API do provedor. Você é responsável por manter uma assinatura válida com o provedor.
+</Note>
+
+## Integração Lincros
+
+A integração Lincros conecta a calcANTT diretamente com a plataforma logística Lincros. Ativá-la desbloqueia funcionalidades estendidas de sincronização de cargas, permitindo que os registros fluam entre os dois sistemas sem entrada manual de dados.
+
+Para configurar o Lincros, ative o card no marketplace e siga os passos de conexão na folha de configuração que abre.
+
+## Ativando uma integração
+
+<Steps>
+  <Step title="Abra o marketplace">
+    Navegue até **Integrações → Chave de API & Marketplace** e selecione a aba **Marketplace**.
+  </Step>
+  <Step title="Encontre o card de integração">
+    Navegue ou pesquise pela integração desejada. Cards indisponíveis no seu plano atual são exibidos com um ícone de cadeado — o campo `disponivel` na integração controla isso.
+  </Step>
+  <Step title="Clique em Ativar">
+    Clique no botão **Ativar** no card. Uma folha de configuração abre se a integração requer configurações adicionais (como uma chave de API do provedor).
+  </Step>
+  <Step title="Conclua a configuração">
+    Preencha os campos obrigatórios na folha de configuração e salve. O card é atualizado para mostrar a integração como ativa.
+  </Step>
+</Steps>
+
+<Info>
+  Algumas integrações requerem um add-on do tipo `RECURSO` que não está incluído no seu plano base. Se o card estiver bloqueado, acesse **Configurações → Faturamento** para solicitar o add-on ou fazer upgrade do seu plano.
+</Info>
+
+## Verificando disponibilidade de integração
+
+O campo `disponivel` em cada objeto `IntegracaoMarketplace` indica se a integração está disponível para o nível do seu plano. Integrações onde `disponivel` é `false` são visíveis no marketplace, mas não podem ser ativadas até que seu plano as inclua.
+
+A calcANTT suporta os seguintes slugs de provedores de mapas:
+
+As integrações são agrupadas por `CategoriaIntegracao` para ajudar você a encontrar o que precisa:
+
+<CardGroup cols={2}>
+  <Card title="ERP" icon="building-2">
+    Sistemas de gestão empresarial. Sincronize fretes, registros de carga e dados de custo diretamente com seu ERP.
+  </Card>
+
+  <Card title="TMS" icon="truck">
+    Sistemas de gestão de transporte. Conecte seu TMS para disparar cálculos e receber eventos do ciclo de vida das cargas via webhooks.
+  </Card>
+
+  <Card title="MAPAS" icon="map">
+    Provedores de mapas e rotas. Habilite o cálculo de distância por CEP em vez de informar um `distanciaKm` fixo.
+  </Card>
+
+  <Card title="OUTROS" icon="plug">
+    Outras integrações que não se encaixam nas categorias acima.
+  </Card>
+</CardGroup>
+
+## Provedores de mapas
+
+Quando uma integração de mapas está ativa, a calculadora de frete aceita `cepOrigem` e `cepDestino` — CEPs brasileiros — e busca a distância rodoviária automaticamente. Sem uma integração de mapas, você deve informar `distanciaKm` diretamente em cada requisição de cálculo.
+
+A calcANTT suporta os seguintes slugs de provedores de mapas:
+
+| Slug | Provedor |
+| --- | --- |
+| `here` | HERE Technologies |
+| `google` | Google Maps Platform |
+| `tomtom` | TomTom |
+| `mapbox` | Mapbox |
+
+<Note>
+  Cada provedor de mapas requer sua própria chave de API. Após ativar o card de integração, abra a folha de configuração para inserir sua chave de API do provedor. Você é responsável por manter uma assinatura válida com o provedor.
+</Note>
+
+<Note>
+  Cada provedor de mapas requer sua própria chave de API. Após ativar o card de integração, abra a folha de configuração para inserir sua chave de API do provedor. Você é responsável por manter uma assinatura válida com o provedor.
+</Note>
+
+## Integração Lincros
+
+A integração Lincros conecta a calcANTT diretamente com a plataforma logística Lincros. Ativá-la desbloqueia funcionalidades estendidas de sincronização de cargas, permitindo que os registros fluam entre os dois sistemas sem entrada manual de dados.
+
+Para configurar o Lincros, ative o card no marketplace e siga os passos de conexão na folha de configuração que abre.
+
+## Ativando uma integração
+
+<Steps>
+  <Step title="Abra o marketplace">
+    Navegue até **Integrações → Chave de API & Marketplace** e selecione a aba **Marketplace**.
+  </Step>
+  <Step title="Encontre o card de integração">
+    Navegue ou pesquise pela integração desejada. Cards indisponíveis no seu plano atual são exibidos com um ícone de cadeado — o campo `disponivel` na integração controla isso.
+  </Step>
+  <Step title="Clique em Ativar">
+    Clique no botão **Ativar** no card. Uma folha de configuração abre se a integração requer configurações adicionais (como uma chave de API do provedor).
+  </Step>
+  <Step title="Conclua a configuração">
+    Preencha os campos obrigatórios na folha de configuração e salve. O card é atualizado para mostrar a integração como ativa.
+  </Step>
+</Steps>
+
+<Info>
+  Algumas integrações requerem um add-on do tipo `RECURSO` que não está incluído no seu plano base. Se o card estiver bloqueado, acesse **Configurações → Faturamento** para solicitar o add-on ou fazer upgrade do seu plano.
+</Info>
+
+## Verificando disponibilidade de integração
+
+O campo `disponivel` em cada objeto `IntegracaoMarketplace` indica se a integração está disponível para o nível do seu plano. Integrações onde `disponivel` é `false` são visíveis no marketplace, mas não podem ser ativadas até que seu plano as inclua.
+
+A integração Lincros conecta a calcANTT diretamente com a plataforma logística Lincros. Ativá-la desbloqueia funcionalidades estendidas de sincronização de cargas, permitindo que os registros fluam entre os dois sistemas sem entrada manual de dados.
+
+Para configurar o Lincros, ative o card no marketplace e siga os passos de conexão na folha de configuração que abre.
+
+## Ativando uma integração
+
+<Steps>
+  <Step title="Abra o marketplace">
+    Navegue até **Integrações → Chave de API & Marketplace** e selecione a aba **Marketplace**.
+  </Step>
+  <Step title="Encontre o card de integração">
+    Navegue ou pesquise pela integração desejada. Cards indisponíveis no seu plano atual são exibidos com um ícone de cadeado — o campo `disponivel` na integração controla isso.
+  </Step>
+  <Step title="Clique em Ativar">
+    Clique no botão **Ativar** no card. Uma folha de configuração abre se a integração requer configurações adicionais (como uma chave de API do provedor).
+  </Step>
+  <Step title="Conclua a configuração">
+    Preencha os campos obrigatórios na folha de configuração e salve. O card é atualizado para mostrar a integração como ativa.
+  </Step>
+</Steps>
+
+<Info>
+  Algumas integrações requerem um add-on do tipo `RECURSO` que não está incluído no seu plano base. Se o card estiver bloqueado, acesse **Configurações → Faturamento** para solicitar o add-on ou fazer upgrade do seu plano.
+</Info>
+
+## Verificando disponibilidade de integração
+
+O campo `disponivel` em cada objeto `IntegracaoMarketplace` indica se a integração está disponível para o nível do seu plano. Integrações onde `disponivel` é `false` são visíveis no marketplace, mas não podem ser ativadas até que seu plano as inclua.

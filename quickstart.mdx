@@ -1,0 +1,151 @@
+---
+title: "Crie sua conta, gere uma chave de API e faça seu primeiro cálculo"
+description: "Crie sua conta, gere uma chave de API com a permissão CALCULAR_FRETE e faça seu primeiro cálculo de frete em conformidade com a ANTT em minutos."
+---
+
+Este guia mostra como criar uma conta, gerar uma chave de API com a permissão correta e realizar seu primeiro cálculo de frete na API pública da calcANTT. Ao final, você terá uma requisição `curl` funcional que retorna o frete mínimo totalmente detalhado.
+
+<Steps>
+  <Step title="Cadastre-se e ative sua conta">
+    Acesse a página de cadastro da calcANTT e registre sua empresa. Após enviar o formulário, verifique seu e-mail pelo link de ativação e clique nele para confirmar sua conta.
+
+    Após ativar, faça login no painel. Sua conta começa no plano trial, que dá acesso à calculadora e à API pública enquanto você avalia a plataforma.
+  </Step>
+  <Step title="Gere uma chave de API">
+    As chaves de API autenticam suas requisições à API pública da calcANTT. Para criar uma:
+
+    1. Na barra lateral esquerda, vá em **Integrações → Chave de API & Marketplace**.
+    2. Clique em **Nova chave de API**.
+    3. Dê um nome descritivo para a chave (por exemplo, `ERP produção`).
+    4. Selecione o ambiente: **Produção** ou **Sandbox**.
+    5. Em **Permissões**, marque **`CALCULAR_FRETE`** — isso concede acesso aos endpoints de cálculo de frete.
+    6. Clique em **Criar**.
+
+    A chave completa (`chaveCompleta`) é exibida **apenas uma vez**. Copie-a imediatamente e armazene em um gerenciador de segredos ou variável de ambiente.
+
+    <Note>
+      Sua chave de API é uma credencial secreta. Nunca a inclua no controle de versão nem a exponha em código client-side. Se uma chave for comprometida, revogue-a imediatamente em **Integrações → Chave de API & Marketplace** e gere uma substituta.
+    </Note>
+
+    As chaves seguem o formato `calt_<ambiente>_<token>`. O prefixo `calt_` identifica uma chave da calcANTT.
+  </Step>
+  <Step title="Faça seu primeiro cálculo de frete">
+    Envie uma requisição `POST` ao endpoint de cálculo. O exemplo abaixo calcula o frete mínimo para um veículo de seis eixos percorrendo 500 km, com tipo de carga ID `1`, na data `2026-05-23`:
+
+    ```bash
+    curl -X POST https://your-domain/api/public/v1/calculadora/calcular \
+      -H "Authorization: Bearer calt_sua_chave_api" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "numEixos": 6,
+        "distanciaKm": 500,
+        "tipoCargaId": 1,
+        "altoDesempenho": false,
+        "composicao": false,
+        "retornoVazio": false,
+        "dataCarga": "2026-05-23"
+      }'
+    ```
+
+    Substitua `https://your-domain` pela URL da sua instância da calcANTT e `calt_sua_chave_api` pela chave gerada no passo anterior.
+
+    **Referência dos campos da requisição:**
+
+    | Campo | Tipo | Descrição |
+    | --- | --- | --- |
+    | `numEixos` | inteiro | Número de eixos do veículo |
+    | `distanciaKm` | número | Distância da rota em quilômetros. Use `0` para calcular por CEP de origem/destino |
+    | `tipoCargaId` | inteiro | ID do tipo de carga — obtenha os IDs válidos em `GET /api/public/v1/calculadora/tipos-carga` |
+    | `altoDesempenho` | booleano | `true` para veículos de alto desempenho (PBT/PBTC) |
+    | `composicao` | booleano | `true` para conjuntos de veículos em composição |
+    | `retornoVazio` | booleano | `true` para incluir o adicional de retorno em vazio |
+    | `dataCarga` | string | Data da carga no formato `yyyy-MM-dd` — determina a versão da tabela ANTT aplicável |
+    | `cepOrigem` | string | CEP de origem (opcional, usado quando `distanciaKm` é `0`) |
+    | `cepDestino` | string | CEP de destino (opcional, usado quando `distanciaKm` é `0`) |
+  </Step>
+  <Step title="Leia a resposta">
+    Uma requisição bem-sucedida retorna um objeto JSON com o detalhamento completo do cálculo. Veja um exemplo de resposta:
+
+    ```json
+    {
+      "parametros": {
+        "numEixos": 6,
+        "distanciaKm": 500,
+        "tipoCargaId": 1,
+        "altoDesempenho": false,
+        "composicao": false,
+        "retornoVazio": false,
+        "dataCarga": "2026-05-23"
+      },
+      "tipoCargaCodigo": "GR",
+      "tipoCargaNome": "Graneleiro",
+      "numEixos": 6,
+      "tipoVeiculoDescricao": "Carreta 6 Eixos",
+      "calculadoEm": "2026-05-23T14:32:00Z",
+      "cacheHit": false,
+      "avisos": [],
+      "tabelas": [
+        {
+          "tabelaUuid": "a1b2c3d4-...",
+          "tabelaCodigo": "ANTT-2026-Q1",
+          "tabelaNome": "Tabela ANTT Q1 2026",
+          "numEixos": 6,
+          "tipoVeiculoDescricao": "Carreta 6 Eixos",
+          "subtotalIda": 3250.00,
+          "valorRetornoVazio": 0.00,
+          "valorTotal": 3250.00,
+          "componentes": [
+            {
+              "codigo": "CCD",
+              "nome": "Custo de Capital e Depreciação",
+              "unidade": "POR_KM",
+              "tarifa": 2.15,
+              "valor": 1075.00,
+              "formula": "tarifa × distanciaKm"
+            },
+            {
+              "codigo": "CF",
+              "nome": "Custo de Combustível",
+              "unidade": "POR_KM",
+              "tarifa": 3.55,
+              "valor": 1775.00,
+              "formula": "tarifa × distanciaKm"
+            },
+            {
+              "codigo": "PEDAGIO",
+              "nome": "Pedágio",
+              "unidade": "FIXO",
+              "tarifa": 400.00,
+              "valor": 400.00,
+              "formula": "tarifa"
+            }
+          ]
+        }
+      ]
+    }
+    ```
+
+    **Principais campos da resposta:**
+
+    | Campo | Descrição |
+    | --- | --- |
+    | `parametros` | Eco dos parâmetros de entrada usados no cálculo |
+    | `tabelas` | Array de resultados — uma entrada por versão da tabela ANTT ativa na `dataCarga` |
+    | `tabelas[].subtotalIda` | Total da ida antes do adicional de retorno em vazio |
+    | `tabelas[].valorRetornoVazio` | Adicional de retorno em vazio (zero quando `retornoVazio` é `false`) |
+    | `tabelas[].valorTotal` | Frete mínimo final para esta versão da tabela |
+    | `tabelas[].componentes` | Componentes de custo detalhados com tarifa, unidade, valor e fórmula |
+    | `calculadoEm` | Timestamp ISO 8601 de quando o cálculo foi realizado |
+    | `cacheHit` | `true` se o resultado foi servido do cache em vez de recalculado |
+    | `avisos` | Avisos não bloqueantes, por exemplo quando parâmetros estão fora dos intervalos normais |
+
+    <Tip>
+      Quando `cacheHit` é `true`, o resultado foi retornado do cache Redis e não recalculado. Resultados em cache são idênticos aos recém-calculados e contam para a cota de requisições do seu plano.
+    </Tip>
+  </Step>
+  <Step title="Explore a referência completa da API">
+    O endpoint de cálculo acima é um dos vários endpoints públicos disponíveis com a permissão `CALCULAR_FRETE`. A permissão `GERENCIAR_CARGAS` desbloqueia os endpoints de gestão de cargas para criação e acompanhamento de registros individuais de embarque.
+
+    Consulte a [Referência da API](/api-reference/overview) para documentação completa de todos os endpoints, schemas de requisição, códigos de erro e modelos de resposta.
+  </Step>
+</Steps>

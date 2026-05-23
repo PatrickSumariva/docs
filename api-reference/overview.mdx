@@ -1,0 +1,83 @@
+---
+title: "API REST pública da calcANTT — visão geral e URL base"
+description: "A API REST da calcANTT expõe o cálculo de fretes e a gestão de cargas para sistemas externos. Autentique-se com uma chave de API e receba respostas em JSON."
+---
+
+A API pública da calcANTT é uma API REST que expõe o cálculo de fretes e a gestão de cargas para sistemas externos como ERPs e plataformas TMS. Cada requisição deve incluir uma chave de API no cabeçalho `Authorization`, e cada resposta — incluindo erros — é em JSON.
+
+## URL base
+
+Todos os endpoints da API pública são servidos em:
+
+```text
+https://your-domain/api/public/v1
+```
+
+Substitua `your-domain` pelo hostname da sua instância da calcANTT.
+
+## Endpoints disponíveis
+
+<CardGroup cols={2}>
+  <Card title="Calcular frete" icon="calculator" href="/api-reference/calculate">
+    `POST /calculadora/calcular` — Envie parâmetros de veículo e rota para obter as taxas mínimas da ANTT.
+  </Card>
+
+  <Card title="Gerenciar cargas" icon="box" href="/api-reference/cargos">
+    `POST /cargas`, `GET /cargas/{id}`, disparar cálculo e cancelamento.
+  </Card>
+
+  <Card title="Tipos de veículo e carga" icon="list" href="/api-reference/vehicle-types">
+    `GET /calculadora/tipos-veiculo` e `GET /calculadora/tipos-carga` — buscar dados de referência.
+  </Card>
+
+  <Card title="Autenticação" icon="key" href="/api-reference/authentication">
+    Como gerar e usar chaves de API para autenticar cada requisição.
+  </Card>
+</CardGroup>
+
+## Formato da requisição
+
+Todas as requisições `POST` e `PUT` devem enviar `Content-Type: application/json` com um corpo JSON.
+
+## Formato da resposta
+
+Respostas bem-sucedidas retornam `HTTP 200` com um corpo JSON. Respostas de erro seguem esta estrutura:
+
+```json
+{
+  "correlationId": "550e8400-e29b-41d4-a716-446655440000",
+  "status": 422,
+  "erro": "VALIDATION_ERROR",
+  "mensagem": "distanciaKm deve ser maior que 0",
+  "timestamp": "2026-05-23T10:00:00Z"
+}
+```
+
+<ResponseField name="correlationId" type="string">
+  Identificador único para a requisição. Use ao contatar o suporte ou pesquisar nos logs de integração.
+</ResponseField>
+
+<ResponseField name="status" type="number">
+  Código de status HTTP repetido no corpo por conveniência.
+</ResponseField>
+
+<ResponseField name="erro" type="string">
+  Código de erro legível por máquina (ex.: `VALIDATION_ERROR`, `SYSTEM_ERROR`).
+</ResponseField>
+
+<ResponseField name="mensagem" type="string">
+  Descrição do erro legível por humanos.
+</ResponseField>
+
+## Limites de taxa e cotas
+
+Cada plano define:
+
+- `limiteRequisicoesMes` — total de requisições de API permitidas por mês
+- `limiteCalculosMes` — cálculos de frete permitidos por mês
+
+Quando um limite é excedido, a API retorna `HTTP 429`. Você pode ver o uso atual no painel ou em **Configurações → Faturamento**.
+
+<Note>
+  Tanto o uso da calculadora web quanto as chamadas externas à API contam para as mesmas cotas mensais.
+</Note>

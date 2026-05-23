@@ -1,0 +1,71 @@
+---
+title: "calcANTT: Plataforma de Conformidade com a Tabela ANTT de Fretes"
+description: "calcANTT — calcule os fretes mínimos da ANTT via API, calculadora web, importação em massa de cargas e integrações via webhook para ERPs e sistemas TMS."
+---
+
+A calcANTT é uma plataforma SaaS que calcula os valores mínimos de frete rodoviário do Brasil em conformidade com a tabela regulatória da ANTT (Agência Nacional de Transportes Terrestres). Seja você operador de uma transportadora, desenvolvedor de software ERP ou de um TMS (Sistema de Gestão de Transporte), a calcANTT oferece as ferramentas para garantir a conformidade com o piso de frete, automatizar cálculos em escala e auditar cada resultado por meio de logs de integração.
+
+## Problemas que resolve
+
+A tabela de frete mínimo da ANTT é atualizada periodicamente e varia conforme o tipo de veículo, tipo de carga, distância e parâmetros operacionais. Calcular esses valores manualmente é suscetível a erros e operacionalmente custoso. A calcANTT resolve isso ao:
+
+- Manter a tabela ANTT sempre atualizada e versionada, garantindo que seus cálculos reflitam a regulamentação vigente
+- Disponibilizar uma API REST para que seu ERP ou TMS calcule fretes sem intervenção humana
+- Oferecer uma calculadora web para equipes operacionais que precisam de cotações rápidas e avulsas
+- Permitir a importação em massa de cargas via Excel para equipes de logística com alto volume de fretes
+- Enviar notificações via webhook para sistemas downstream quando eventos de cálculo ocorrerem
+- Armazenar resultados em cache para melhor desempenho, mantendo trilhas de auditoria completas nos logs de integração
+
+## Principais funcionalidades
+
+<CardGroup cols={2}>
+  <Card title="Calculadora Web" icon="calculator" href="/guides/calculator">
+    Calculadora no navegador onde sua equipe insere parâmetros de rota, seleciona tipo de veículo e carga, e visualiza instantaneamente o valor mínimo de frete em conformidade, sem necessidade de integração via API.
+  </Card>
+
+  <Card title="API Pública" icon="code" href="/api-reference/overview">
+    API REST que recebe parâmetros de rota e veículo e retorna o frete mínimo detalhado por componente de custo. Projetada para integração com ERPs, plataformas TMS e sistemas logísticos.
+  </Card>
+
+  <Card title="Gestão de Cargas" icon="package" href="/guides/cargo-management">
+    Crie, consulte e calcule o frete de registros de carga individuais. Suporta importação em massa via Excel para equipes com alto volume de fretes usando o recurso `IMPORTACAO_CARGAS`.
+  </Card>
+
+  <Card title="Webhooks" icon="webhook" href="/integrations/webhooks">
+    Envie notificações HTTP para seus sistemas quando eventos de cálculo ocorrerem. Disponível pelo painel de integrações do marketplace em planos que incluem o recurso `WEBHOOKS`.
+  </Card>
+</CardGroup>
+
+## Contexto regulatório da ANTT
+
+A legislação brasileira determina valores mínimos de frete rodoviário para operações de transporte contratado. A tabela ANTT define esses mínimos por número de eixos, tipo de carga, distância e modificadores operacionais (veículos de alto desempenho, combinações de veículos e retorno em vazio). Operar abaixo do valor mínimo é uma infração regulatória. A calcANTT aplica a tabela vigente na data da carga (`dataCarga`) para que cálculos históricos permaneçam precisos mesmo após atualizações da tabela.
+
+## Tipos de veículo suportados
+
+A calcANTT cobre toda a gama de veículos regulamentados pela tabela ANTT. Informe o número de eixos (`numEixos`) como inteiro ao chamar a API. Utilize `GET /api/public/v1/calculadora/tipos-veiculo` para obter a lista atualizada com descrições:
+
+| `numEixos` | Classificação do veículo |
+| --- | --- |
+| `2` | Caminhão Leve |
+| `3` | Caminhão Toco |
+| `4` | Caminhão Truck |
+| `5` | Truck 3 Eixos |
+| `6` | Carreta 4 Eixos |
+| `7` | Carreta 5 Eixos |
+| `8` | Carreta 6 Eixos |
+| `9` | Bitrem 7 Eixos / Rodotrem 9 Eixos |
+
+## Tipos de carroceria suportados
+
+O tipo de carroceria é informado como inteiro no campo `tipoCargaId`. Utilize `GET /api/public/v1/calculadora/tipos-carga` para obter a lista atualizada. As oito classificações de carroceria definidas pela ANTT são:
+
+| Código | Tipo de carroceria |
+| --- | --- |
+| `GRA` | Graneleiro |
+| `FRI` | Frigorífico |
+| `PCO` | Porta Container |
+| `SID` | Sider |
+| `BAU` | Baú |
+| `TAN` | Tanque |
+| `PLA` | Plataforma |
+| `CGE` | Carga Geral |

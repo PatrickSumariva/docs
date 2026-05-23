@@ -1,0 +1,71 @@
+---
+title: "GET tipos-veiculo e tipos-carga — listas de referência"
+description: "Busque os valores válidos de numEixos e os inteiros tipoCargaId da calcANTT antes de chamar /calculadora/calcular. Retorna as listas ativas de tipos de veículo e carga."
+---
+
+Antes de chamar `/calculadora/calcular`, você pode buscar as listas de referência de configurações de veículos e tipos de carga suportados. Estes endpoints retornam os valores válidos para `numEixos` e `tipoCargaId` que o endpoint de cálculo aceita. Ambos os endpoints requerem a permissão `CALCULAR_FRETE`.
+
+---
+
+## Obter configurações de eixos de veículos
+
+**`GET /api/public/v1/calculadora/tipos-veiculo`**
+
+```bash
+curl https://your-domain/api/public/v1/calculadora/tipos-veiculo \
+  -H "Authorization: Bearer calt_live_sua_chave_aqui"
+```
+
+### Resposta
+
+```json
+[
+  { "id": 1, "numEixos": 2, "descricao": "Caminhão Leve", "ativo": true, "ordem": 1 },
+  { "id": 2, "numEixos": 3, "descricao": "Caminhão Toco", "ativo": true, "ordem": 2 },
+  { "id": 3, "numEixos": 4, "descricao": "Caminhão Truck", "ativo": true, "ordem": 3 },
+  { "id": 4, "numEixos": 5, "descricao": "Truck 3 Eixos", "ativo": true, "ordem": 4 },
+  { "id": 5, "numEixos": 6, "descricao": "Carreta 4 Eixos", "ativo": true, "ordem": 5 },
+  { "id": 6, "numEixos": 7, "descricao": "Carreta 5 Eixos", "ativo": true, "ordem": 6 },
+  { "id": 7, "numEixos": 8, "descricao": "Carreta 6 Eixos", "ativo": true, "ordem": 7 },
+  { "id": 8, "numEixos": 9, "descricao": "Bitrem 7 Eixos", "ativo": true, "ordem": 8 },
+  { "id": 9, "numEixos": 9, "descricao": "Rodotrem 9 Eixos", "ativo": true, "ordem": 9 }
+]
+```
+
+Passe o valor `numEixos` da entrada selecionada como o parâmetro `numEixos` na sua requisição de cálculo.
+
+### Campos da resposta
+
+---
+
+## Obter tipos de carga
+
+**`GET /api/public/v1/calculadora/tipos-carga`**
+
+```bash
+curl https://your-domain/api/public/v1/calculadora/tipos-carga \
+  -H "Authorization: Bearer calt_live_sua_chave_aqui"
+```
+
+### Resposta
+
+```json
+[
+  { "id": 1, "codigo": "GRA", "nome": "Graneleiro", "ordemExibicao": 1, "ativo": true },
+  { "id": 2, "codigo": "FRI", "nome": "Frigorífico", "ordemExibicao": 2, "ativo": true },
+  { "id": 3, "codigo": "PCO", "nome": "Porta Container", "ordemExibicao": 3, "ativo": true },
+  { "id": 4, "codigo": "SID", "nome": "Sider", "ordemExibicao": 4, "ativo": true },
+  { "id": 5, "codigo": "BAU", "nome": "Baú", "ordemExibicao": 5, "ativo": true },
+  { "id": 6, "codigo": "TAN", "nome": "Tanque", "ordemExibicao": 6, "ativo": true },
+  { "id": 7, "codigo": "PLA", "nome": "Plataforma", "ordemExibicao": 7, "ativo": true },
+  { "id": 8, "codigo": "CGE", "nome": "Carga Geral", "ordemExibicao": 8, "ativo": true }
+]
+```
+
+Passe o `id` como `tipoCargaId` nas suas requisições de cálculo e criação de carga.
+
+### Campos da resposta
+
+<Tip>
+  Faça cache dessas listas de referência na sua aplicação — elas mudam apenas quando a ANTT publica uma nova versão da tabela. Refaça a busca quando notar respostas inesperadas de `VALIDATION_ERROR` referenciando IDs desconhecidos.
+</Tip>

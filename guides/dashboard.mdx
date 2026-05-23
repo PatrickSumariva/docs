@@ -1,0 +1,87 @@
+---
+title: "Monitore a atividade de frete e o uso do plano na calcANTT"
+description: "O painel da calcANTT mostra o volume de cálculos, taxas de conformidade de cargas, saúde da integração via API e uso de cotas do plano ao longo do ciclo de faturamento."
+---
+
+O painel é sua central operacional na calcANTT. Toda vez que você faz login, ele mostra um instantâneo da sua operação de frete: quantos registros de carga foram criados, como os cálculos estão distribuídos entre os canais, se os valores de frete declarados estão atendendo ao mínimo da ANTT e quanto da cota do seu plano foi consumido. Use o seletor **Período** no canto superior direito para delimitar a análise aos últimos 7, 30 ou 90 dias.
+
+## Uso de cotas do plano
+
+O consumo do seu plano atual é rastreado em três dimensões de cota. Você pode revisá-las a qualquer momento pelos indicadores de cota exibidos na plataforma:
+
+<CardGroup cols={3}>
+  <Card title="Cota de cálculos" icon="calculator">
+    `utilizadoCalculos` de `limiteCalculosMes` — o número de cálculos de frete realizados no ciclo de faturamento atual. Conta cálculos da Calculadora web, registros de carga e da API.
+  </Card>
+
+  <Card title="Cota de requisições" icon="radio-tower">
+    `utilizadoRequisicoes` de `limiteRequisicoesMes` — total de requisições de API feitas durante o ciclo, abrangendo tanto chamadas da interface web quanto chamadas externas à API das suas integrações usando chaves de API.
+  </Card>
+
+  <Card title="Chaves de API" icon="key">
+    `utilizadoApiKeys` de `limiteApiKeys` — o número de chaves de API ativas que você criou. Chaves adicionais requerem upgrade do plano ou adição de um add-on de Chave de API.
+  </Card>
+</CardGroup>
+
+O contador `diasRestantesCiclo` mostra quantos dias faltam antes de as cotas serem resetadas no início do próximo ciclo de faturamento.
+
+<Info>
+  As contagens de requisições de API incluem **tanto** chamadas da calculadora web feitas pelo navegador quanto chamadas diretas à API feitas pelas suas integrações externas. Ambos os canais consomem do mesmo pool `limiteRequisicoesMes`.
+</Info>
+
+<Tip>
+  Quando qualquer cota estiver baixa, acesse **Configurações → Faturamento** para ver as opções de add-on disponíveis. Add-ons podem estender seu `limiteCalculosMes`, `limiteRequisicoesMes`, `limiteApiKeys` ou `limiteImportacaoCargas` sem exigir uma mudança completa de plano.
+</Tip>
+
+## Indicadores do plano trial
+
+Se sua conta estiver em um plano trial, dois indicadores adicionais aparecem com destaque no painel:
+
+- **`trialTerminaEm`** — o último dia do seu período trial (formato `yyyy-MM-dd`).
+- **`diasRestantesTrial`** — o número de dias restantes, atualizado diariamente no fuso horário de São Paulo.
+
+Uma barra de progresso reflete quanto do trial você já percorreu, derivada de `duracaoTrialDias`. Quando o trial termina, o acesso é restrito às funcionalidades disponíveis no plano convertido.
+
+## Painel de cargas
+
+O cartão **Cargas** resume os registros de frete criados no período selecionado:
+
+- **Total registradas** — total de registros de carga em todos os status (`cargas.total`).
+- **Situação** — detalhamento por `situacao`: registros em operação (`CRIADO`) vs. cancelados (`CANCELADO`).
+- **Cálculo ANTT** — detalhamento por `statusCalculo`: quantos registros estão `CALCULADO` e quantos permanecem `NAO_CALCULADO` (aguardando cálculo).
+- **Frete declarado vs. mínimo ANTT** — detalhamento por `valorAtendido`:
+  | Valor | Significado |
+  | --- | --- |
+  | `ATENDE` | O `valorFrete` declarado atende ou supera o mínimo da ANTT |
+  | `NAO_ATENDE` | O valor declarado está abaixo do piso regulatório |
+  | `NAO_INFORMADO` | Nenhum `valorFrete` foi declarado; a comparação de conformidade não é possível |
+  <Note>
+    A comparação de conformidade se aplica apenas a registros de carga que possuem tanto um `valorFrete` declarado **quanto** um cálculo concluído. Registros sem valor de frete declarado sempre aparecem como `NAO_INFORMADO`.
+  </Note>
+- **Tipos de carga mais frequentes** — um gráfico de rosca mostrando a distribuição dos tipos de carga (`tipoCargaNome`) nos seus registros no período selecionado.
+
+Clique em **Abrir cargas** para navegar diretamente para a página completa de Cargas com seus filtros e grade.
+
+## Painel de cálculos
+
+O cartão **Cálculos de frete** detalha o volume de cálculos por canal que disparou cada cálculo:
+
+| Métrica | Origem |
+| --- | --- |
+| `calculos.calculadora` | Cálculos disparados pela interface da Calculadora web |
+| `calculos.api` | Cálculos feitos pela API pública usando uma chave de API |
+| `calculos.cargas` | Cálculos executados em registros de carga (manual ou em lote) |
+| `calculos.comAvisos` | Cálculos que retornaram uma ou mais entradas no array `avisos` |
+
+Um gráfico de barras proporcional mostra a participação relativa de cada canal para que você possa ver de relance se a maior parte do uso vem da interface web, fluxos de carga ou integrações via API.
+
+## Painel de integração via API
+
+O cartão **Integração via API** resume as requisições autenticadas feitas com suas chaves de API durante o período selecionado:
+
+- **Requisições** — total de requisições recebidas (`apiIntegracao.totalRequisicoes`).
+- **Taxa de sucesso** — porcentagem de requisições que retornaram resposta `2xx` (`taxaSucessoPercentual`).
+- **Erros 4xx** — erros do lado do cliente, como parâmetros inválidos, falhas de autenticação ou cota excedida.
+- **Erros 5xx** — erros do lado do servidor (`erros5xx`).
+
+Se você tem a funcionalidade `LOGS_INTEGRACAO` habilitada no seu plano e tem o perfil de administrador, um link **Ver logs de integração** aparece abaixo das métricas para levá-lo diretamente ao log detalhado de requisições.

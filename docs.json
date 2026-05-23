@@ -1,0 +1,79 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "calcANTT",
+  "theme": "almond",
+  "colors": {
+    "primary": "#2563eb",
+    "light": "#eff6ff",
+    "dark": "#1e3a8a"
+  },
+  "navbar": {
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/PatrickSumariva/antt"
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentação",
+        "groups": [
+          {
+            "group": "Primeiros Passos",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "plans"
+            ]
+          },
+          {
+            "group": "Usando a Plataforma",
+            "pages": [
+              "guides/calculator",
+              "guides/cargo-management",
+              "guides/antt-table",
+              "guides/dashboard"
+            ]
+          },
+          {
+            "group": "Integrações",
+            "pages": [
+              "integrations/api-keys",
+              "integrations/webhooks",
+              "integrations/marketplace",
+              "integrations/logs"
+            ]
+          },
+          {
+            "group": "Conta e Configurações",
+            "pages": [
+              "settings/users",
+              "settings/billing",
+              "settings/faq"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Referência da API",
+        "groups": [
+          {
+            "group": "Visão Geral",
+            "pages": [
+              "api-reference/overview",
+              "api-reference/authentication"
+            ]
+          },
+          {
+            "group": "Endpoints",
+            "pages": [
+              "api-reference/calculate",
+              "api-reference/cargos",
+              "api-reference/vehicle-types"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

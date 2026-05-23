@@ -1,0 +1,159 @@
+---
+title: "Endpoints de cargas — criar, consultar, calcular, cancelar"
+description: "Use POST /cargas para criar um registro, GET /cargas/{id} para consultá-lo, depois dispare o cálculo ANTT ou cancele o embarque pela API pública."
+---
+
+Os endpoints de cargas permitem criar e gerenciar registros de frete na calcANTT a partir do seu ERP ou TMS. Após criar um registro de carga, você pode disparar um cálculo ANTT para verificar se o valor de frete declarado atende ao mínimo legal. Todos os endpoints requerem a permissão `GERENCIAR_CARGAS`.
+
+**Caminho base:** `/api/public/v1/cargas`
+
+---
+
+## Criar um registro de carga
+
+**`POST /api/public/v1/cargas`**
+
+```bash
+curl -X POST https://your-domain/api/public/v1/cargas \
+  -H "Authorization: Bearer calt_live_sua_chave_aqui" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "dataCarga": "2026-05-23",
+    "numero": "000123",
+    "serie": "1",
+    "unidade": "Filial SP",
+    "cnpjUnidade": "12345678000199",
+    "kmTotal": 500,
+    "tipoCargaId": 1,
+    "numEixos": 6,
+    "altoDesempenho": false,
+    "composicao": false,
+    "retornoVazio": false,
+    "valorFrete": 950.00
+  }'
+```
+
+### Parâmetros da requisição
+
+<ParamField body="dataCarga" type="string" required>
+  Data da carga no formato `yyyy-MM-dd`.
+</ParamField>
+
+<ParamField body="numero" type="string" required>
+  Número do documento (ex.: número do CT-e).
+</ParamField>
+
+<ParamField body="serie" type="string" required>
+  Série do documento.
+</ParamField>
+
+<ParamField body="unidade" type="string" required>
+  Nome da unidade ou filial emissora.
+</ParamField>
+
+<ParamField body="cnpjUnidade" type="string" required>
+  CNPJ da unidade emissora (somente dígitos ou formatado).
+</ParamField>
+
+<ParamField body="kmTotal" type="number" required>
+  Distância total da rota em quilômetros.
+</ParamField>
+
+<ParamField body="tipoCargaId" type="number" required>
+  ID do tipo de carga. Busque os valores válidos em `GET /calculadora/tipos-carga`.
+</ParamField>
+
+<ParamField body="numEixos" type="number" required>
+  Número de eixos (`2`–`9`).
+</ParamField>
+
+<ParamField body="altoDesempenho" type="boolean" required>
+  `true` para o padrão de veículo de alto desempenho.
+</ParamField>
+
+<ParamField body="composicao" type="boolean" required>
+  `true` para veículos em composição.
+</ParamField>
+
+<ParamField body="retornoVazio" type="boolean" required>
+  `true` para incluir o adicional de retorno em vazio.
+</ParamField>
+
+<ParamField body="valorFrete" type="number">
+  Valor do frete declarado (BRL). Usado para determinar `valorAtendido` após o cálculo.
+</ParamField>
+
+<ParamField body="identificador" type="string">
+  Seu identificador interno (ex.: ID interno do pedido ou chave do CT-e).
+</ParamField>
+
+<ParamField body="transportador" type="string">
+  Nome da transportadora.
+</ParamField>
+
+<ParamField body="cnpjTransportador" type="string">
+  CNPJ da transportadora.
+</ParamField>
+
+<ParamField body="cepOrigem" type="string">
+  CEP de origem. Usado para cálculo automático de distância quando uma integração de mapas está ativa.
+</ParamField>
+
+<ParamField body="cepDestino" type="string">
+  CEP de destino.
+</ParamField>
+
+<ParamField body="observacao" type="string">
+  Observação em texto livre anexada ao registro.
+</ParamField>
+
+---
+
+## Consultar um registro de carga
+
+**`GET /api/public/v1/cargas/{id}`**
+
+```bash
+curl https://your-domain/api/public/v1/cargas/550e8400-e29b-41d4-a716-446655440000 \
+  -H "Authorization: Bearer calt_live_sua_chave_aqui"
+```
+
+Retorna o registro de carga completo, incluindo o último resultado de `calculo` (se calculado) e `valorAtendido`.
+
+### Principais campos da resposta
+
+<ResponseField name="valorAtendido" type="string">
+  `ATENDE` — o `valorFrete` declarado atende ou supera o mínimo. `NAO_ATENDE` — o valor declarado está abaixo do mínimo. `NAO_INFORMADO` — nenhum `valorFrete` foi fornecido.
+</ResponseField>
+
+---
+
+## Calcular frete para um registro de carga
+
+**`POST /api/public/v1/cargas/{id}/calcular`**
+
+Dispara um cálculo da taxa mínima ANTT para um registro de carga existente e atualiza `valorMinimo` e `valorAtendido`.
+
+```bash
+curl -X POST https://your-domain/api/public/v1/cargas/550e8400-e29b-41d4-a716-446655440000/calcular \
+  -H "Authorization: Bearer calt_live_sua_chave_aqui"
+```
+
+Retorna o registro de carga atualizado com `statusCalculo: "CALCULADO"` e o campo `calculo` preenchido.
+
+---
+
+## Cancelar um registro de carga
+
+**`POST /api/public/v1/cargas/{id}/cancelar`**
+
+```bash
+curl -X POST https://your-domain/api/public/v1/cargas/550e8400-e29b-41d4-a716-446655440000/cancelar \
+  -H "Authorization: Bearer calt_live_sua_chave_aqui"
+```
+
+Define `situacao` como `CANCELADO`. O cancelamento é **irreversível**.
+
+<Warning>
+  Registros de carga cancelados não podem ser reativados. Se precisar reprocessar um embarque, crie um novo registro de carga.
+</Warning>

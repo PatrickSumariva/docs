@@ -1,0 +1,83 @@
+---
+title: "Calcule fretes mínimos da ANTT pela interface web"
+description: "Use a Calculadora da calcANTT para calcular os fretes mínimos da ANTT por veículo, tipo de carga e rota — manualmente ou via consulta de CEP."
+---
+
+A **Calculadora** é a ferramenta de cálculo de frete baseada no navegador da calcANTT. Sem escrever uma linha de código, você pode consultar o valor mínimo regulado pela ANTT para qualquer configuração de veículo e tipo de carga, visualizar o detalhamento completo de custos por componente e repetir cálculos anteriores no painel de histórico. Cada cálculo é registrado automaticamente e conta para a cota do seu plano.
+
+## Usando a calculadora
+
+<Steps>
+  <Step title="Abra a seção Calculadora">
+    Na barra lateral esquerda, clique em **Calculadora**. O formulário de parâmetros carrega à esquerda; os resultados e o histórico aparecem à direita.
+  </Step>
+  <Step title="Selecione o número de eixos">
+    No dropdown **Eixos**, escolha o valor `numEixos` que corresponde ao seu veículo — de **2 eixos** (caminhão leve) até **9 eixos** (rodotrem). Cada opção mostra a descrição do veículo e um exemplo de configuração para ajudá-lo a identificar o tipo correto.
+  </Step>
+  <Step title="Selecione o tipo de carga">
+    Escolha um `tipoCargaId` no dropdown **Tipo de carga**. As opções são carregadas das tabelas ANTT ativas e correspondem às classificações oficiais de carga (ex.: carga geral, graneleiro, frigorífico).
+  </Step>
+  <Step title="Insira a distância da rota">
+    Você tem duas formas de informar a distância da rota:
+
+    - **KM manual** — digite a distância total diretamente no campo **Distância (km)**.
+    - **CEPs de origem / destino** — insira um `cepOrigem` e `cepDestino` (CEP brasileiro, com ou sem traço). Quando um provedor de integração de rotas está configurado, a calcANTT busca a distância rodoviária automaticamente e usa `distanciaKm: 0` como sinal interno para acionar a consulta de rota.
+
+    <Note>
+      O cálculo automático de distância por CEP requer uma integração de rotas ativa na sua conta. Se nenhum provedor estiver configurado, os campos de CEP ficam desabilitados e você deve inserir a distância manualmente. Acesse **Integrações → Marketplace** para habilitar um provedor de rotas.
+    </Note>
+  </Step>
+  <Step title="Defina as opções de veículo e rota">
+    Marque as três caixas de seleção conforme sua operação:
+
+    | Opção | Campo | Descrição |
+    | --- | --- | --- |
+    | Alto Desempenho | `altoDesempenho` | Veículo de alto desempenho — aplica o padrão de tabela ANTT correspondente |
+    | Composição | `composicao` | Veículo em composição / semirreboque duplo (bitrem, rodotrem) |
+    | Retorno Vazio | `retornoVazio` | Incluir o adicional de retorno em vazio no total |
+  </Step>
+  <Step title="Defina a data da carga">
+    Insira uma `dataCarga` no campo **Data da carga** (formato `yyyy-MM-dd`). Esta data determina qual versão da tabela ANTT estava vigente no momento do frete — fundamental para verificações de conformidade em embarques históricos.
+
+    <Tip>
+      Sempre defina a `dataCarga` correta. Usar a data de hoje para um embarque ocorrido em período anterior pode referenciar uma versão diferente da tabela e produzir um valor mínimo incorreto.
+    </Tip>
+  </Step>
+  <Step title="Execute o cálculo">
+    Clique em **Calcular**. O formulário fica bloqueado enquanto a requisição está em andamento. Os resultados aparecem no painel à direita assim que a resposta chega.
+  </Step>
+</Steps>
+
+## Lendo os resultados
+
+A resposta preenche o array `tabelas` — uma entrada por variante de tabela ANTT correspondente. Cada entrada é um `ResultadoTabelaCalculo` e contém:
+
+<CardGroup cols={2}>
+  <Card title="Detalhamento dos componentes" icon="list">
+    O array `componentes` lista cada `ComponenteCalculado` com seu `codigo`, `nome`, `unidade` (`POR_KM` ou `FIXO`), `tarifa` e `valor` calculado. O campo `formula` mostra exatamente como cada valor foi derivado.
+  </Card>
+
+  <Card title="Totais" icon="calculator">
+    `subtotalIda` é o subtotal do frete de ida. Quando `retornoVazio` está habilitado, `valorRetornoVazio` é adicionado para produzir `valorTotal` — o mínimo ANTT completo que você deve declarar.
+  </Card>
+
+  <Card title="Generalidades" icon="percent">
+    Cobranças percentuais (como o componente `RETORNO_VAZIO`) aparecem como unidades `PERCENTUAL` dentro de `componentes`. Cada entrada mostra o `componenteBaseCodigo` ao qual é aplicada.
+  </Card>
+
+  <Card title="Metadados da tabela" icon="table">
+    Cada resultado inclui `tabelaCodigo`, `tabelaNome`, `padraoCodigo` e `tipoVeiculoDescricao` para que você possa identificar exatamente qual versão de tabela e padrão de veículo produziu o valor.
+  </Card>
+</CardGroup>
+
+Quando múltiplas tabelas correspondem à sua `dataCarga` — por exemplo quando uma atualização regulatória introduziu uma nova tabela que se sobrepõe ao final de uma versão anterior — todos os resultados correspondentes aparecem. Revise cada entrada e selecione a que se aplica ao seu veículo e rota específicos.
+
+## Cache e desempenho
+
+<Tip>
+  Quando você executa o mesmo conjunto de parâmetros pela segunda vez, a calcANTT retorna o resultado armazenado imediatamente. O indicador `cacheHit: true` na resposta confirma que um resultado em cache foi retornado. Resultados em cache contam para a sua cota, mas respondem instantaneamente.
+</Tip>
+
+## Histórico de cálculos
+
+Os últimos cinco cálculos são salvos automaticamente e exibidos no painel **Histórico** abaixo do cartão de resultados. Cada entrada do histórico mostra os parâmetros principais — `numEixos`, `distanciaKm`, `tipoCargaCodigo`, `dataCarga` — junto com o menor e o maior `valorTotal` entre todas as tabelas correspondentes. Clique em **Recalcular** em qualquer entrada para recarregar esses parâmetros no formulário e executar um novo cálculo.

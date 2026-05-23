@@ -1,0 +1,68 @@
+---
+title: "Autentique requisições na API pública da calcANTT"
+description: "Gere uma chave de API com escopo na calcANTT, passe-a como token Bearer em cada requisição e trate corretamente os erros de autenticação 401, 403 e 429."
+---
+
+A calcANTT autentica todas as requisições da API pública usando chaves de API. Você gera as chaves no painel da plataforma e as passa no cabeçalho `Authorization` de cada requisição. 
+
+## Gere uma chave de API
+
+<Steps>
+  <Step title="Abra Chave de API & Marketplace">
+    No painel da calcANTT, navegue até **Integrações → Chave de API & Marketplace**.
+  </Step>
+  <Step title="Crie uma nova chave">
+    Clique em **Nova Chave de API** e preencha:
+
+    - **Nome**: um rótulo para identificar a chave (ex.: `ERP Produção`)
+    - **Permissões**: selecione os escopos que sua integração precisa (veja abaixo)
+    - **Expiração**: data de expiração opcional
+  </Step>
+  <Step title="Copie a chave imediatamente">
+    A chave completa (`chaveCompleta`) é exibida **apenas uma vez**. Copie agora e armazene com segurança. Ela não será exibida novamente.
+  </Step>
+</Steps>
+
+<Warning>
+  Nunca inclua sua chave de API no controle de versão nem a exponha em código client-side. Se uma chave for comprometida, revogue-a imediatamente em **Integrações → Chave de API & Marketplace** e crie uma nova ou **rotacione** a chave atual.
+</Warning>
+
+## Formato da chave
+
+As chaves de API seguem este formato:
+
+```text
+calt_live_xxxxxxxxxxxxxxxxxxxx
+```
+
+## Enviando a chave nas requisições
+
+Inclua a chave no cabeçalho `Authorization` como token Bearer em cada requisição:
+
+```bash
+curl -X POST https://app.calcantt.com.br/api/public/v1/calculadora/calcular \
+  -H "Authorization: Bearer calt_live_sua_chave_aqui" \
+  -H "Content-Type: application/json" \
+  -d '{ ... }'
+```
+
+## Permissões
+
+Cada chave recebe uma ou mais permissões que controlam quais endpoints pode acessar:
+
+| Permissão | Endpoints |
+| --- | --- |
+| `CALCULAR_FRETE` | `POST /calculadora/calcular`, `GET /calculadora/tipos-veiculo`, `GET /calculadora/tipos-carga` |
+| `GERENCIAR_CARGAS` | `POST /cargas`, `GET /cargas/{id}`, `POST /cargas/{id}/calcular`, `POST /cargas/{id}/cancelar` |
+
+## Erros de autenticação
+
+| Status HTTP | Significado |
+| --- | --- |
+| `401 Unauthorized` | Cabeçalho `Authorization` ausente ou malformado |
+| `403 Forbidden` | A chave é válida mas não tem permissão para o endpoint solicitado, ou a chave está revogada/inativa |
+| `429 Too Many Requests` | Cota mensal excedida |
+
+<Tip>
+  Crie chaves separadas com permissões mínimas para cada integração. Por exemplo, uma ferramenta de relatórios só precisa de `CALCULAR_FRETE`; seu TMS que gerencia registros de carga precisa de `GERENCIAR_CARGAS`.
+</Tip>
