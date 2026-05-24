@@ -1,0 +1,13 @@
+---
+title: "Calcular frete"
+sidebarTitle: "Calcular frete"
+openapi: "/api-reference/openapi.json POST /calculadora/calcular"
+---
+
+Núcleo da API: envie os parâmetros de rota e veículo e receba o frete mínimo da ANTT, detalhado por tabela aplicável e componente de custo.
+
+<Tip>
+  Consulte os valores válidos de `tipoCargaId` em [Tipos de carga](/api-reference/calculadora/tipos-carga) antes de chamar este endpoint.
+</Tip>
+
+Identifique o veículo de uma destas formas: pelo número de eixos em `numEixos` ou pelo `tipoVeiculoId` (veja [Tipos de veículo](/api-reference/calculadora/tipos-veiculo)). Informe `valorFrete` se quiser que cada tabela da resposta traga `valorAtendido` indicando se o frete atende ou não o piso mínimo daquela tabela.

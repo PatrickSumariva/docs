@@ -1,0 +1,112 @@
+---
+title: "TMS Lincros"
+sidebarTitle: "TMS Lincros"
+icon: "/logos/lincros.png"
+description: "Integração nativa com o TMS Lincros: a calcANTT busca embarques (ou ordens de coleta), calcula o frete mínimo da ANTT e devolve o resultado ao Lincros."
+---
+
+A integração nativa com o **TMS [Lincros](https://www.lincros.com/)** conecta os dois sistemas ponta a ponta: a calcANTT busca os embarques (ou ordens de coleta) pendentes no Lincros, calcula o frete mínimo da ANTT e devolve o resultado ao TMS, sem cadastro manual.
+
+É configurada pela tela **Integrações → API & Marketplace**, no card da Lincros.
+
+<Warning>
+  A integração depende de recursos e **limitações da própria plataforma Lincros**. Vários pontos desta página existem justamente para contornar essas limitações, e estão sinalizados ao longo do texto.
+</Warning>
+
+## O que a integração busca
+
+A integração pode ser ativada para buscar **Embarque** ou **Ordem de coleta**. Cada tipo tem a ação **Buscar** (só registra a carga na calcANTT) ou **Buscar e calcular** (registra e já calcula). Com as duas opções desmarcadas, o tipo fica inativo.
+
+| Tipo | Endpoint no Lincros |
+| --- | --- |
+| Embarque | `POST v3/embarque/recuperarDados` (retorno: `POST embarque/salvarRetornoEmbarque`) |
+| Ordem de coleta | `GET v3/ordemcoleta/recuperarDados` (retorno: `POST ordemcoleta/salvarRetornoOrdemColeta`) |
+
+Na prática, você ativa **um ou outro**, por causa de uma limitação do Lincros (veja abaixo).
+
+### O embarque é a carga lotação
+
+A tabela ANTT vale para **carga lotação**, que no Lincros corresponde ao **Embarque**. A **Ordem de coleta** existe na integração apenas para contornar uma limitação da plataforma.
+
+<Warning>
+  **Por que existe a opção de Ordem de coleta.** No TMS Lincros, os embarques são publicados em uma fila de integração. Se você já consome essa fila de embarques no seu ERP, haveria dois serviços (a calcANTT e o seu ERP) concorrendo pela mesma API: só um receberia cada registro (o que chegar primeiro). Para esses casos, habilitamos a busca por **Ordem de coleta**, e a calcANTT recupera os dados do embarque a partir dela, sem disputar a fila de embarques.
+
+  Se você integra **os dois** (embarque e ordem de coleta) ao seu ERP ou plataforma, não há como usar esta integração.
+</Warning>
+
+<Note>
+  Na ordem de coleta, a calcANTT consome os dados do **embarque** vinculado. Se a ordem de coleta foi criada para **carga fracionada** ou **documentos avulsos**, ela não é integrada à calcANTT.
+</Note>
+
+## Parâmetros de cálculo fixos
+
+O TMS Lincros **não tem campos** para informar se a carga é de **alto desempenho**, **composição veicular** ou **retorno vazio**. Por isso, essas três opções ficam **fixas no integrador** (outra limitação da plataforma): o valor marcado na configuração vale para todos os embarques daquele destino.
+
+O significado de cada uma está no FAQ: [alto desempenho](/settings/faq#o-que-e-uma-operacao-de-transporte-de-alto-desempenho), [composição](/settings/faq#o-que-e-uma-composicao) e [retorno vazio](/settings/faq#o-que-e-o-retorno-vazio).
+
+## De/Para: tipo de veículo
+
+Para usar a integração, o embarque **precisa obrigatoriamente usar grupo de veículo** no Lincros. A calcANTT faz um **De/Para** entre a **descrição do grupo de veículo** e um **tipo de veículo** da calcANTT, para descobrir o **número de eixos**.
+
+Por exemplo, se no Lincros existe o grupo **"Caminhões Truck"**, configure no integrador a descrição `Caminhões Truck` ligada ao tipo **TRUCK** (calcANTT). Assim, todo embarque com o grupo "Caminhões Truck" usa o número de eixos do tipo TRUCK.
+
+<Note>
+  Aqui o De/Para usa a **descrição** do grupo de veículo (ignorando maiúsculas/minúsculas e espaços nas pontas). A mesma descrição não pode aparecer em mais de uma linha.
+</Note>
+
+## De/Para: tipo de carga
+
+O TMS Lincros **não categoriza os 12 tipos de carga da ANTT** (veja a lista no [FAQ](/settings/faq#quais-tipos-de-carga-sao-suportados)). Por isso, o De/Para do tipo de carga usa outro campo do Lincros:
+
+- o **Fluxo de transporte** do embarque, ou
+- o **Tipo de viagem**.
+
+Você escolhe **um** deles e registra o De/Para no integrador. Diferente do tipo de veículo (que usa a descrição), aqui o De/Para usa o **código** do fluxo ou do tipo de viagem.
+
+<Tip>
+  Se você usa **apenas um** tipo de carga, pode **fixar o valor** no integrador, sem precisar do fluxo de transporte nem do tipo de viagem.
+</Tip>
+
+## Retorno ao TMS Lincros
+
+As opções abaixo afetam apenas o retorno ao TMS depois do processamento. Elas **não alteram** as regras de cálculo da ANTT.
+
+<Note>
+  Todos os valores, cálculos, erros e mensagens devolvidos pela calcANTT ficam no campo **Mensagem integração** de cada documento (Embarque ou Ordem de coleta) no Lincros.
+</Note>
+
+### Identificador (valor atendido) no retorno
+
+Disponível **somente para Embarque** (o campo `identificador` existe no embarque). Depois de criar ou calcular a carga, a calcANTT envia `POST embarque/salvarRetornoEmbarque`. Com esta opção ligada, o JSON inclui o `identificador` com `ATENDIDO`, `NAO_ATENDIDO` ou `NAO_INFORMADO` (conforme o valor atendido). Sem a opção, o campo não é enviado.
+
+Isso facilita filtrar, na listagem de embarques do Lincros, as cargas com problema de conformidade.
+
+### Erro de integração se frete abaixo do mínimo ANTT
+
+Disponível para **Embarque ou Ordem de coleta em "Buscar e calcular"**. Se a integração for só "buscar" (criar a carga), o usuário calcula manualmente na plataforma e essa informação não é devolvida.
+
+Quando o TMS traz um valor de frete e, após o cálculo, ele fica **abaixo do mínimo ANTT**, o retorno ao TMS usa `statusIntegracao=2` (erro de integração) em vez de `0` (integrado). Ou seja, em vez de marcar o documento como integrado, marca como erro de integração. **Padrão: desligado.**
+
+## Tempo de execução
+
+Define de quanto em quanto tempo a calcANTT busca novas cargas no TMS Lincros:
+
+- 5 minutos
+- 10 minutos
+- 30 minutos
+- 1 hora
+
+## Configuração do destino
+
+| Campo | Descrição |
+| --- | --- |
+| Nome do destino | Rótulo para você identificar o destino. |
+| URL base do TMS | URL base do Lincros (ex.: `https://ws-tms.lincros.com/api/`). |
+| Bearer Token | Token de autenticação da calcANTT no seu servidor Lincros. Enviado como `Authorization: Bearer <token>`. É armazenado com segurança e nunca volta nas respostas. |
+| Frequência | Intervalo de execução (5min, 10min, 30min ou 1h). |
+
+Cada destino é independente: a mesma empresa pode ter vários destinos em paralelo (por exemplo, produção e homologação).
+
+<Info>
+  A integração Lincros é nativa e **não exige add-on**; a disponibilidade depende do seu plano. Acompanhe cada busca, cálculo e retorno pelos **logs de execução** no painel da integração.
+</Info>

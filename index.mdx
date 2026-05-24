@@ -1,55 +1,55 @@
 ---
-title: "CalcANTT: Brazil ANTT freight rate calculator platform"
-description: "CalcANTT calculates minimum road freight rates based on the official ANTT table. Integrate via REST API or use the web platform to manage shipments."
+title: "calcANTT: plataforma de cálculo de frete mínimo da tabela ANTT"
+description: "A calcANTT calcula o frete rodoviário mínimo com base na tabela oficial da ANTT. Integre via API REST ou use a plataforma web para gerenciar suas cargas."
 ---
 
-CalcANTT is a platform for calculating Brazil's minimum road freight rates in compliance with the official ANTT (Agência Nacional de Transportes Terrestres) table. Whether you use the interactive web calculator, import cargo batches from Excel, or integrate your ERP or TMS via REST API, CalcANTT ensures every freight rate you submit meets regulatory minimums.
+A calcANTT é a plataforma para calcular o frete rodoviário mínimo do Brasil em conformidade com a tabela oficial da ANTT (Agência Nacional de Transportes Terrestres). Use a calculadora web interativa, importe cargas em massa por Excel ou integre seu ERP ou TMS via API REST. Em todos os caminhos, a calcANTT garante que cada valor de frete atenda ao piso regulatório.
 
 <CardGroup cols={2}>
-  <Card title="Quick Start" icon="rocket" href="/quickstart">
-    Create your account, generate an API key, and make your first freight calculation in minutes.
+  <Card title="Primeiros passos" icon="rocket" href="/quickstart">
+    Crie sua conta, gere uma chave de API e faça seu primeiro cálculo de frete em minutos.
   </Card>
-  <Card title="API Reference" icon="code" href="/api-reference/overview">
-    Explore the public REST API endpoints for calculating freight rates and managing cargo records.
+  <Card title="Referência da API" icon="code" href="/api-reference/overview">
+    Explore os endpoints REST públicos para calcular fretes e gerenciar registros de carga.
   </Card>
-  <Card title="Calculator Guide" icon="calculator" href="/guides/calculator">
-    Learn how to use the web calculator to get ANTT-compliant freight rates by vehicle type and route.
+  <Card title="Guia da calculadora" icon="calculator" href="/guides/calculator">
+    Aprenda a usar a calculadora web para obter fretes em conformidade com a ANTT por veículo e rota.
   </Card>
-  <Card title="Integrations" icon="plug" href="/integrations/api-keys">
-    Connect your ERP, TMS, or logistics platform using API keys, webhooks, and the integration marketplace.
+  <Card title="Integrações" icon="plug" href="/integrations/api-keys">
+    Conecte seu ERP, TMS ou plataforma logística usando chaves de API, webhooks e o marketplace.
   </Card>
 </CardGroup>
 
-## Get started in 4 steps
+## Comece em 4 passos
 
 <Steps>
-  <Step title="Create your account">
-    Sign up at the CalcANTT platform and activate your company account. You can invite team members from **Settings → Users**.
+  <Step title="Crie sua conta">
+    Cadastre-se na plataforma calcANTT e ative a conta da sua empresa. Você pode convidar membros da equipe em **Configurações → Usuários**.
   </Step>
-  <Step title="Choose a plan">
-    Select the plan that fits your volume needs. Each plan defines monthly calculation limits, API key quotas, and available features. See [Plans](/plans) for details.
+  <Step title="Escolha um plano">
+    Selecione o plano que atende ao seu volume. Cada plano define limites mensais de cálculos, cotas de chaves de API e funcionalidades disponíveis. Veja [Planos](/plans) para detalhes.
   </Step>
-  <Step title="Generate an API key">
-    Go to **Integrations → API Key & Marketplace** to create your first API key. Assign the `CALCULAR_FRETE` permission to enable freight calculations via the API.
+  <Step title="Gere uma chave de API">
+    Acesse **Integrações → API & Marketplace** para criar sua primeira chave. Atribua a permissão `CALCULAR_FRETE` para habilitar cálculos de frete via API.
   </Step>
-  <Step title="Make your first calculation">
-    Send a `POST` request to `/api/public/v1/calculadora/calcular` with your vehicle type, cargo type, distance, and load weight. See the [Quick Start](/quickstart) for a working example.
+  <Step title="Faça seu primeiro cálculo">
+    Envie uma requisição `POST` para `/api/public/v1/calculadora/calcular` com o tipo de veículo, tipo de carga, distância e data da carga. Veja os [Primeiros passos](/quickstart) para um exemplo funcional.
   </Step>
 </Steps>
 
-## Key features
+## Principais funcionalidades
 
 <CardGroup cols={2}>
-  <Card title="ANTT-Compliant Rates" icon="shield-check" href="/guides/calculator">
-    Calculates minimum rates for 9 vehicle types and 8 body types based on the current ANTT table version.
+  <Card title="Fretes em conformidade com a ANTT" icon="shield-check" href="/guides/calculator">
+    Calcula os valores mínimos para 7 configurações de veículo e 12 tipos de carga com base na versão vigente da tabela ANTT.
   </Card>
-  <Card title="Cargo Management" icon="box" href="/guides/cargo-management">
-    Create, track, and calculate freight for individual cargo records. Import in bulk via Excel.
+  <Card title="Gestão de cargas" icon="box" href="/guides/cargo-management">
+    Crie, acompanhe e calcule o frete de registros de carga individuais. Importe em massa via Excel.
   </Card>
   <Card title="Webhooks" icon="webhook" href="/integrations/webhooks">
-    Receive real-time HTTP notifications when cargo is created, calculated, or cancelled.
+    Receba notificações HTTP em tempo real quando uma carga é criada, calculada ou cancelada.
   </Card>
-  <Card title="Calculation History" icon="clock-rotate-left" href="/guides/dashboard">
-    Monitor usage, view past calculations, and track your monthly quota from the dashboard.
+  <Card title="Histórico de cálculos" icon="clock-rotate-left" href="/guides/dashboard">
+    Acompanhe o uso, consulte cálculos anteriores e monitore sua cota mensal pelo painel.
   </Card>
 </CardGroup>

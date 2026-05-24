@@ -1,0 +1,11 @@
+---
+title: "Calcular carga"
+sidebarTitle: "Calcular carga"
+openapi: "/api-reference/openapi.json POST /cargas/{id}/calcular"
+---
+
+Dispara o cálculo do frete mínimo ANTT para um registro de carga existente e atualiza `valorMinimo` e `valorAtendido`.
+
+<Tip>
+  Use o cálculo da carga para manter o registro auditável. Para uma cotação avulsa, sem persistir um registro, use a [calculadora pública](/api-reference/calculadora/calcular).
+</Tip>

@@ -3,7 +3,7 @@ title: "Configure webhooks da calcANTT para entrega de eventos em tempo real"
 description: "Configure endpoints de webhook para receber notificações HTTP POST instantâneas sempre que registros de carga forem alterados, limites forem atingidos ou chaves de API forem modificadas na calcANTT."
 ---
 
-Os webhooks permitem que seus sistemas recebam notificações HTTP POST em tempo real quando eventos ocorrem na calcANTT. Em vez de consultar a API periodicamente por atualizações, você registra uma URL de endpoint e a calcANTT entrega o payload no momento em que algo relevante acontece.
+Os webhooks permitem que seus sistemas recebam notificações HTTP POST em tempo real quando eventos ocorrem na calcANTT. Em vez de consultar a API de tempos em tempos à procura de novidades, você registra uma URL de endpoint e a calcANTT entrega o payload assim que algo relevante acontece.
 
 ## Eventos suportados
 
@@ -43,7 +43,7 @@ Assine um ou mais dos seguintes valores de `WebhookTipoEvento` ao criar um endpo
 
 <Steps>
   <Step title="Abra a aba de webhooks">
-    Navegue até **Integrações → Chave de API & Marketplace** e selecione a aba **Webhooks**.
+    Navegue até **Integrações → API & Marketplace** e selecione a aba **Webhooks**.
   </Step>
   <Step title="Clique em Novo Endpoint">
     Clique no botão para abrir o formulário de criação de endpoint.
@@ -55,13 +55,13 @@ Assine um ou mais dos seguintes valores de `WebhookTipoEvento` ao criar um endpo
     | --- | --- |
     | `nome` | Nome de exibição para este endpoint (ex.: `Eventos de Carga TMS`). |
     | `urlDestino` | A URL HTTPS que receberá os payloads de eventos. |
-    | `tipoAutenticacao` | Como a calcANTT se autentica no seu endpoint — veja as opções abaixo. |
+    | `tipoAutenticacao` | Como a calcANTT se autentica no seu endpoint, veja as opções abaixo. |
     | `cabecalhoAuthNome` / `cabecalhoAuthValor` | Obrigatório quando `tipoAutenticacao` é `CABECALHO_PERSONALIZADO`. |
     | `cabecalhosCustomizados` | Mapa opcional de cabeçalhos adicionais para incluir em cada entrega. |
     | `gatilhos` | Lista de valores `WebhookTipoEvento` para assinar. |
   </Step>
   <Step title="Salve e anote o segredo HMAC (se aplicável)">
-    Se você escolheu `HMAC_SHA256`, a calcANTT exibe `segredoHmacExibicaoUnica` — o segredo de assinatura — **uma vez**. Copie imediatamente e armazene com segurança. Você o usará para verificar assinaturas recebidas no seu servidor.
+    Se você escolheu `HMAC_SHA256`, a calcANTT exibe `segredoHmacExibicaoUnica`, o segredo de assinatura, **uma vez**. Copie imediatamente e armazene com segurança. Você o usará para verificar assinaturas recebidas no seu servidor.
   </Step>
 </Steps>
 
@@ -74,15 +74,15 @@ Assine um ou mais dos seguintes valores de `WebhookTipoEvento` ao criar um endpo
 Escolha o método de autenticação que melhor se adapta à sua infraestrutura:
 
 <AccordionGroup>
-  <Accordion title="NENHUMA — sem autenticação">
+  <Accordion title="NENHUMA: sem autenticação">
     A calcANTT envia o payload sem cabeçalho de autenticação. Use isso apenas para endpoints internos protegidos por controles de rede (ex.: uma URL acessível somente via VPN).
   </Accordion>
 
-  <Accordion title="CABECALHO_PERSONALIZADO — cabeçalho personalizado">
+  <Accordion title="CABECALHO_PERSONALIZADO: cabeçalho personalizado">
     A calcANTT inclui um cabeçalho de sua escolha em cada requisição. Defina `cabecalhoAuthNome` com o nome do cabeçalho (ex.: `X-Api-Key`) e `cabecalhoAuthValor` com o valor secreto. Seu endpoint valida o cabeçalho antes de processar o payload.
   </Accordion>
 
-  <Accordion title="HMAC_SHA256 — assinatura do payload">
+  <Accordion title="HMAC_SHA256: assinatura do payload">
     A calcANTT assina o corpo da requisição com HMAC-SHA256 usando um segredo compartilhado. Seu servidor recalcula a assinatura e a compara com o valor no cabeçalho de entrega. Isso previne tanto falsificação quanto adulteração do payload.
   </Accordion>
 </AccordionGroup>
@@ -105,15 +105,15 @@ Cada tentativa de entrega no histórico inclui:
 | `ultimoCodigoHttp` | Código de status HTTP retornado pelo seu endpoint na última tentativa. |
 | `tentativaNumero` | O número da tentativa para esta entrega. |
 | `corpoEnviadoJson` | O payload JSON exato enviado para o seu endpoint. |
-| `emDlq` | `true` quando todas as tentativas se esgotaram e a entrega está na fila de mensagens mortas. |
+| `emDlq` | `true` quando todas as tentativas se esgotaram e a entrega foi para a fila de descarte (DLQ). |
 
-Quando todas as tentativas se esgotam, a entrega é movida para a fila de mensagens mortas e `emDlq` é definido como `true`. Inspecione as entregas na fila de mensagens mortas para entender falhas persistentes.
+Quando todas as tentativas se esgotam, a entrega é movida para a fila de descarte (dead-letter queue) e `emDlq` passa a `true`. Examine as entregas nessa fila para entender falhas persistentes.
 
 ## Monitorando entregas
 
 <Steps>
   <Step title="Abra o log de entregas">
-    Acesse **Integrações → Chave de API & Marketplace → Webhooks** e clique no ícone de log de entregas em qualquer endpoint.
+    Acesse **Integrações → API & Marketplace → Webhooks** e clique no ícone de log de entregas em qualquer endpoint.
   </Step>
   <Step title="Revise o histórico de entregas">
     Cada entrada `WebhookEntregaPainel` mostra o evento, status, número da tentativa, código de resposta HTTP e o payload completo que foi enviado.

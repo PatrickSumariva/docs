@@ -3,7 +3,7 @@ title: "Como a calcANTT aplica a tabela de fretes da ANTT"
 description: "Entenda a estrutura da tabela ANTT na calcANTT: períodos de vigência, itens por tipo de carga, componentes de taxa por eixo e como a versão correta da tabela é selecionada."
 ---
 
-A tabela de fretes da ANTT é a regulamentação oficial brasileira que estabelece os **preços mínimos** que as transportadoras podem cobrar pelo transporte rodoviário. Emitida pela ANTT (Agência Nacional de Transportes Terrestres), define um piso regulado para cada combinação de tipo de carga, número de eixos do veículo e distância da rota — tornando legalmente obrigatório que embarcadores e transportadoras verifiquem se qualquer valor de frete declarado atende ou supera o mínimo aplicável.
+A tabela de fretes da ANTT é a regulamentação oficial brasileira que estabelece os **preços mínimos** que as transportadoras podem cobrar pelo transporte rodoviário. Emitida pela ANTT (Agência Nacional de Transportes Terrestres), define um piso regulado para cada combinação de tipo de carga, número de eixos do veículo e distância da rota, tornando legalmente obrigatório que embarcadores e transportadoras verifiquem se qualquer valor de frete declarado atende ou supera o mínimo aplicável.
 
 A calcANTT mantém um banco de dados versionado dessas tabelas para que cada cálculo sempre use as taxas que estavam legalmente em vigor na data do embarque, não apenas a tabela atual.
 
@@ -43,14 +43,14 @@ Cada tabela ANTT na plataforma é armazenada como um registro `TabelaAntt` com o
 
 ## Itens de taxa e valores por eixo
 
-Cada tabela contém uma lista de `itens` — uma entrada por combinação de `tipoCarga` × `componente`. Cada `ItemTabela` especifica:
+Cada tabela contém uma lista de `itens`: uma entrada por combinação de `tipoCarga` × `componente`. Cada `ItemTabela` especifica:
 
-- **`tipoCargaCodigo` / `tipoCargaNome`** — a classificação de carga à qual esta taxa se aplica.
-- **`componenteCodigo` / `componenteNome`** — o componente de taxa (ex.: `CCD` para o componente de custo baseado em distância).
-- **`unidadeCalculo`** — como a taxa é aplicada:
-  - `POR_KM` — a tarifa é multiplicada pela distância da rota em quilômetros.
-  - `FIXO` — um valor fixo aplicado independentemente da distância.
-- **`valores`** — um array de entradas `ValorEixo`, uma por número de eixos (`numEixos`), cada uma com o `valor` monetário para aquele tamanho de veículo.
+- **`tipoCargaCodigo` / `tipoCargaNome`**: a classificação de carga à qual esta taxa se aplica.
+- **`componenteCodigo` / `componenteNome`**: o componente de taxa (ex.: `CCD` para o componente de custo baseado em distância).
+- **`unidadeCalculo`**: como a taxa é aplicada:
+  - `POR_KM`: a tarifa é multiplicada pela distância da rota em quilômetros.
+  - `FIXO`: um valor fixo aplicado independentemente da distância.
+- **`valores`**: um array de entradas `ValorEixo`, uma por número de eixos (`numEixos`), cada uma com o `valor` monetário para aquele tamanho de veículo.
 
 ## Componentes do cálculo
 
@@ -69,8 +69,8 @@ Quando você executa um cálculo, o motor resolve cada `ItemTabela` corresponden
 
 Algumas cobranças não são expressas como taxas absolutas, mas como porcentagem de outro componente. Essas aparecem como entradas `Generalidade` na tabela e surgem como componentes `PERCENTUAL` no resultado do cálculo. Cada generalidade referencia:
 
-- `componenteBaseCodigo` — o componente ao qual é aplicada (ex.: `CCD`).
-- `percentual` — a taxa aplicável como percentual.
+- `componenteBaseCodigo`: o componente ao qual é aplicada (ex.: `CCD`).
+- `percentual`: a taxa aplicável como percentual.
 
 O adicional de retorno em vazio (`RETORNO_VAZIO`) é o exemplo mais comum: quando `retornoVazio` é `true`, o motor adiciona uma porcentagem do componente de distância base ao total e o apresenta como uma entrada `PERCENTUAL` em `componentes` com o `componenteBaseCodigo` ao qual foi aplicado.
 
@@ -78,8 +78,8 @@ O adicional de retorno em vazio (`RETORNO_VAZIO`) é o exemplo mais comum: quand
 
 Um `PadraoTabela` agrupa tabelas que compartilham a mesma configuração de veículo. Cada padrão tem indicadores booleanos `altoDesempenho` e `composicao`. Os dois principais padrões que você encontrará são:
 
-- **Alto Desempenho (`altoDesempenho: true`)** — tabelas para configurações de veículos de alto desempenho, que têm taxas mínimas diferentes sob a regulamentação.
-- **Composição (`composicao: true`)** — tabelas para caminhões em composição (semirreboques duplos e configurações similares).
+- **Alto Desempenho (`altoDesempenho: true`)**: tabelas para configurações de veículos de alto desempenho, que têm taxas mínimas diferentes sob a regulamentação.
+- **Composição (`composicao: true`)**: tabelas para caminhões em composição (semirreboques duplos e configurações similares).
 
 Quando você habilita os indicadores `altoDesempenho` ou `composicao` na calculadora ou em um registro de carga, o motor automaticamente restringe a seleção de tabelas àquelas cujo `PadraoTabela` corresponde a esses indicadores.
 
@@ -89,7 +89,7 @@ Quando você habilita os indicadores `altoDesempenho` ou `composicao` na calcula
   A calculadora e o motor de cálculo de cargas selecionam todas as tabelas ANTT cuja `vigenciaInicio` ≤ `dataCarga` ≤ `vigenciaFim` (ou `vigenciaFim` é `null`) e cujos indicadores `altoDesempenho` / `composicao` correspondem aos seus parâmetros de entrada. Todas as tabelas correspondentes são retornadas no array `tabelas` para que você possa escolher a mais adequada para o seu registro de carga.
 </Info>
 
-Os resultados podem incluir mais de uma tabela correspondente — por exemplo, quando uma atualização regulatória introduziu uma nova tabela que se sobrepõe ao final de uma versão anterior. Revise o `tabelaCodigo`, `tabelaNome` e `padraoCodigo` de cada resultado para identificar a versão correta para o seu embarque.
+Os resultados podem incluir mais de uma tabela correspondente, por exemplo, quando uma atualização regulatória introduziu uma nova tabela que se sobrepõe ao final de uma versão anterior. Revise o `tabelaCodigo`, `tabelaNome` e `padraoCodigo` de cada resultado para identificar a versão correta para o seu embarque.
 
 <Tip>
   Sempre verifique a `dataCarga` antes de executar um cálculo. Inserir a data errada faz o motor selecionar uma tabela de um período regulatório diferente, produzindo um valor mínimo que não reflete as taxas legalmente em vigor na data real do embarque.
@@ -97,4 +97,4 @@ Os resultados podem incluir mais de uma tabela correspondente — por exemplo, q
 
 ## Visualizador público da tabela de fretes
 
-A tabela de fretes ANTT atual pode ser visualizada publicamente em `/calculadora/tabela-frete` — sem necessidade de login. Use esta página para compartilhar as tarifas oficiais com transportadoras, auditores ou clientes sem conceder a eles acesso total à sua conta calcANTT.
+A tabela de fretes ANTT atual pode ser visualizada publicamente em `/calculadora/tabela-frete`, sem necessidade de login. Use esta página para compartilhar as tarifas oficiais com transportadoras, auditores ou clientes sem conceder a eles acesso total à sua conta calcANTT.

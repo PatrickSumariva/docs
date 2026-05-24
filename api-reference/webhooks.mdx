@@ -1,0 +1,142 @@
+---
+title: "Configuração Webhooks"
+sidebarTitle: "Configuração Webhooks"
+description: "Receba notificações HTTP POST em tempo real quando eventos acontecem na calcANTT: eventos suportados, envelope do payload, autenticação HMAC, retentativas e segurança."
+---
+
+Os webhooks fazem a calcANTT enviar uma requisição `POST` para uma URL sua sempre que um evento relevante acontece: uma carga é calculada, uma chave de API é alterada, o consumo do plano atinge o limite. Em vez de consultar a API de tempos em tempos, seu sistema é avisado no momento do evento.
+
+Endpoints de webhook são cadastrados e monitorados pela tela **Integrações → API & Marketplace → Webhooks**. Esta página descreve o contrato técnico das entregas.
+
+## Eventos suportados
+
+Cada endpoint escolhe quais gatilhos quer receber. A calcANTT faz **fan-out**: um evento gera uma entrega para cada endpoint que assina aquele gatilho.
+
+| Gatilho | Disparado quando |
+| --- | --- |
+| `CARGA_CRIADA` | Uma carga é cadastrada (manual, importação ou Lincros). |
+| `CARGA_EDITADA` | Uma carga existente é alterada. |
+| `CARGA_CALCULADA` | Um cálculo é concluído (inclui o caso "sem tabela vigente"). |
+| `CARGA_CANCELADA` | Uma carga é cancelada definitivamente. |
+| `CONSUMO_LIMITE_ATINGIDO` | O primeiro bloqueio do ciclo por limite de cálculos ou requisições. |
+| `CONFIGURACAO_WEBHOOK_ALTERADA` | Um endpoint de webhook é criado, editado ou removido. |
+| `CHAVE_API_ALTERADA` | Uma chave de API é criada, rotacionada, ativada/inativada ou revogada. |
+
+## Envelope do payload
+
+Toda entrega é um `POST` com `Content-Type: application/json; charset=UTF-8`. O envelope é sempre o mesmo; o que muda é o conteúdo de `dados`, conforme o `tipoEvento`.
+
+<ResponseField name="tipoEvento" type="string">
+  O gatilho que originou a entrega (ex.: `CARGA_CALCULADA`).
+</ResponseField>
+
+<ResponseField name="ocorridoEm" type="string">
+  Data e hora em que o evento aconteceu.
+</ResponseField>
+
+<ResponseField name="endpointId" type="number">
+  ID do endpoint de webhook que recebe a entrega.
+</ResponseField>
+
+<ResponseField name="endpointNome" type="string">
+  Nome do endpoint de webhook.
+</ResponseField>
+
+<ResponseField name="dados" type="object">
+  Conteúdo específico do evento. A estrutura varia conforme o `tipoEvento`, conforme a seção Payload por evento.
+</ResponseField>
+
+<Note>
+  Nos eventos de carga, `dados.carga` traz o registro completo, no mesmo formato da [consulta de carga](/api-reference/cargas/consultar). O identificador estável é o `id` numérico; use-o para correlacionar com a API REST.
+</Note>
+
+## Payload por evento
+
+O corpo de cada `tipoEvento` é documentado em sua própria página (no menu lateral, em **Webhooks**). Todas as entregas são `POST` com o envelope acima; o que muda é o conteúdo de `dados`:
+
+- [`CARGA_CRIADA`](/api-reference/webhooks/carga-criada)
+- [`CARGA_CALCULADA`](/api-reference/webhooks/carga-calculada)
+- [`CARGA_EDITADA`](/api-reference/webhooks/carga-editada)
+- [`CARGA_CANCELADA`](/api-reference/webhooks/carga-cancelada)
+- [`CONSUMO_LIMITE_ATINGIDO`](/api-reference/webhooks/consumo-limite-atingido)
+- [`CONFIGURACAO_WEBHOOK_ALTERADA`](/api-reference/webhooks/configuracao-webhook-alterada)
+- [`CHAVE_API_ALTERADA`](/api-reference/webhooks/chave-api-alterada)
+
+## Cabeçalhos de cada entrega
+
+Independente do modo de autenticação, todo `POST` traz:
+
+```http
+Content-Type: application/json; charset=UTF-8
+X-Webhook-Event: CARGA_CALCULADA
+X-Webhook-Timestamp: 1714435000000
+```
+
+## Autenticação
+
+Escolha o modo por endpoint:
+
+<AccordionGroup>
+  <Accordion title="HMAC_SHA256: assinatura do payload (recomendado)">
+    A calcANTT assina cada entrega e envia a assinatura no cabeçalho `X-Webhook-Signature` (hexadecimal). A assinatura é:
+
+    ```text
+    HMAC-SHA256(segredo, timestamp + "." + corpoBruto)
+    ```
+
+    Onde `timestamp` é o valor do cabeçalho `X-Webhook-Timestamp` e `corpoBruto` é o corpo da requisição exatamente como recebido. Recalcule a assinatura no seu servidor e compare:
+
+    ```js
+    import crypto from "node:crypto";
+
+    function assinaturaValida(segredo, timestamp, corpoBruto, assinaturaRecebida) {
+      const base = `${timestamp}.${corpoBruto}`;
+      const esperada = crypto.createHmac("sha256", segredo).update(base).digest("hex");
+      return crypto.timingSafeEqual(Buffer.from(esperada), Buffer.from(assinaturaRecebida));
+    }
+    ```
+
+    O segredo é exibido **uma única vez** no momento da criação do endpoint. Guarde-o com segurança.
+  </Accordion>
+
+  <Accordion title="CABECALHO_PERSONALIZADO: cabeçalho fixo">
+    A calcANTT inclui um cabeçalho de sua escolha em cada entrega (ex.: `X-API-Token: xpto`). Seu endpoint valida o cabeçalho antes de processar o payload.
+  </Accordion>
+
+  <Accordion title="NENHUMA: sem autenticação">
+    A entrega vai apenas com os cabeçalhos padrão. Use somente para endpoints internos protegidos por rede.
+  </Accordion>
+</AccordionGroup>
+
+## Entrega, retentativas e DLQ
+
+A calcANTT entrega cada evento de forma assíncrona, logo após a operação que o originou ser confirmada. Em caso de falha, há retentativas automáticas.
+
+| Situação | O que acontece |
+| --- | --- |
+| HTTP `2xx` | Entrega **concluída**. |
+| HTTP `4xx`/`5xx`, timeout ou `429` | Entra em **retentativa**: `5min → 10min → 20min`, até **4 tentativas**. |
+| Esgotadas as tentativas | Marca `FALHA_DEFINITIVA` e `emDlq = true` (fila de descarte). |
+
+<Warning>
+  Um endpoint que acumula **10 falhas consecutivas** (após esgotar as tentativas de cada entrega) é **desativado automaticamente**. Reative-o na tela de Webhooks depois de corrigir o destino.
+</Warning>
+
+Você pode **reprocessar** manualmente qualquer entrega, inclusive as que foram para a fila de descarte, pelo painel de webhooks.
+
+## Idempotência
+
+Cada evento carrega uma chave de idempotência derivada da operação. Se o mesmo gatilho disparar duas vezes pela mesma operação, a entrega é gravada uma única vez. Ainda assim, projete seu endpoint para ser idempotente: trate o `id` + `tipoEvento` + `ocorridoEm` como identificador da ocorrência.
+
+## Segurança da URL de destino
+
+Por segurança, a calcANTT valida a URL **no momento do envio** e bloqueia destinos inseguros:
+
+- URLs sem HTTPS.
+- IPs privados (RFC 1918) e `127.0.0.1`.
+- O endereço de metadados de nuvem `169.254.169.254`.
+- Redirecionamentos (o cliente HTTP usa `followRedirects = NEVER`).
+
+<Note>
+  Como redirecionamentos não são seguidos, seu servidor precisa **aceitar o `POST` diretamente na URL cadastrada**, sem redirecionar para outra rota.
+</Note>

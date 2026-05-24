@@ -1,0 +1,24 @@
+---
+title: "Mapbox"
+sidebarTitle: "Mapbox"
+icon: "/logos/mapbox.png"
+description: "Provedor de geolocalização Mapbox na calcANTT: Geocoding v5 e Directions v5."
+---
+
+**Slug:** `mapbox` · **Modo de transporte:** carro (`driving`)
+
+A integração com a **Mapbox** usa o Geocoding v5 para resolver o CEP e o Directions v5 para a distância.
+
+## Observações
+
+- É a opção **mais barata**.
+- No Brasil, as consultas de geocoding do Mapbox são feitas **sempre com os 5 primeiros dígitos** do CEP (não com os 8 dígitos completos), o que pode gerar **discrepâncias** na localização e na distância calculada.
+- O roteamento usa o modo `driving` (carro), assim como o Google.
+
+## Quando priorizar
+
+Útil como **provedor adicional de cobertura** na ordem de prioridade, especialmente como fallback.
+
+<Info>
+  A chave de API da Mapbox é mantida pela calcANTT. Para usar, ative o provedor em **Integrações → API & Marketplace**, com o add-on contratado e ativo (**Configurações → Plano**).
+</Info>

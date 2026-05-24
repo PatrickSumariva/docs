@@ -1,0 +1,24 @@
+---
+title: "Google Maps Platform"
+sidebarTitle: "Google"
+icon: "/logos/google.png"
+description: "Provedor de geolocalização Google Maps Platform na calcANTT: Geocoding API e Routes API v2."
+---
+
+**Slug:** `google` · **Modo de transporte:** carro (`DRIVE`)
+
+A integração com a **Google Maps Platform** usa a Geocoding API para resolver o CEP e a Routes API v2 para calcular a distância.
+
+## Observações
+
+- Tende a ser a **fonte mais confiável** para cálculo no Brasil, porém é a **mais cara**.
+- O Google **não** expõe um modo caminhão público; o roteamento usa o modo `DRIVE` (carro). Por isso costuma funcionar bem como **fallback** dos provedores com modo `truck`.
+- O geocoding é restrito ao Brasil e ao CEP (`components=country:BR|postal_code:`) para evitar que um resultado aproximado caia no "centro geográfico do Brasil".
+
+## Quando priorizar
+
+Bom como **alternativa de cobertura** quando a HERE ou a TomTom não retornarem rota, ou quando a sua operação não depende de restrições específicas de caminhão.
+
+<Info>
+  A chave de API do Google é mantida pela calcANTT. Para usar, ative o provedor em **Integrações → API & Marketplace**, com o add-on contratado e ativo (**Configurações → Plano**).
+</Info>

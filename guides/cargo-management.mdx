@@ -3,7 +3,7 @@ title: "Crie e gerencie registros de carga para conformidade com a ANTT"
 description: "Crie registros de carga, dispare cálculos ANTT, verifique a conformidade com valorAtendido e importe ou exporte registros em massa via Excel na calcANTT."
 ---
 
-O módulo **Cargas** é onde você registra operações individuais de frete e verifica se o valor de frete declarado atende ao mínimo da ANTT. Cada registro de carga armazena os parâmetros do embarque, dispara um cálculo de taxa e rastreia se o `valorFrete` declarado está em conformidade com o piso regulatório — fornecendo uma trilha de auditoria permanente para cada CT-e ou documento de transporte.
+O módulo **Cargas** é onde você registra operações individuais de frete e verifica se o valor de frete declarado atende ao mínimo da ANTT. Cada registro de carga armazena os parâmetros do embarque, dispara um cálculo de taxa e rastreia se o `valorFrete` declarado está em conformidade com o piso regulatório, fornecendo uma trilha de auditoria permanente para cada CT-e ou documento de transporte.
 
 ## Criando um registro de carga manualmente
 
@@ -14,23 +14,23 @@ Clique em **Nova carga** no canto superior direito da página Cargas para abrir 
 | `dataCarga` | Data da operação de frete (`yyyy-MM-dd`). Determina a versão da tabela ANTT ativa usada para o cálculo. |
 | `numero` | Número do documento de transporte (CT-e, MDF-e ou referência interna). |
 | `serie` | Identificador de série do documento. |
-| `unidade` | Nome da unidade ou filial emissora. |
-| `cnpjUnidade` | CNPJ da unidade emissora. Junto com `numero` e `serie`, forma a chave natural — a plataforma impede registros ativos duplicados. |
-| `kmTotal` | Distância total da rota em quilômetros. |
+| `cnpjUnidade` | CNPJ da unidade emissora. Junto com `numero` e `serie`, forma a chave natural, a plataforma impede registros ativos duplicados. |
+| `kmTotal` | Distância total da rota em quilômetros. Opcional se você informar `cepOrigem` e `cepDestino` (a distância é calculada automaticamente, com uma integração de mapas ativa). |
 | `tipoCargaId` | Identificador do tipo de carga, correspondente à classificação da tabela ANTT. |
-| `numEixos` | Número de eixos do veículo (2 – 9). |
+| `numEixos` | Número de eixos do veículo (conte todos os eixos, suspensos ou não). |
 | `altoDesempenho` | `true` para o padrão de veículo de alto desempenho. |
 | `composicao` | `true` para veículos em composição / semirreboque duplo. |
 | `retornoVazio` | `true` para incluir o adicional de retorno em vazio. |
-| `valorFrete` | O valor do frete declarado no documento de transporte. Usado para comparação de conformidade com a ANTT. |
 
 Os seguintes campos são opcionais, mas recomendados:
 
 | Campo | Descrição |
 | --- | --- |
+| `valorFrete` | Valor do frete declarado no documento de transporte. Usado para a comparação de conformidade (`valorAtendido`) com a ANTT. |
+| `unidade` | Nome da unidade ou filial emissora. |
 | `transportador` | Nome da transportadora. |
 | `cnpjTransportador` | CNPJ da transportadora. |
-| `cepOrigem` | CEP de origem (CEP brasileiro). |
+| `cepOrigem` | CEP de origem (CEP brasileiro). Alternativa ao `kmTotal`, com integração de mapas ativa. |
 | `cepDestino` | CEP de destino. |
 | `observacao` | Observações em texto livre para uso interno. |
 
@@ -45,13 +45,13 @@ Após salvar uma carga, seu `statusCalculo` é `NAO_CALCULADO`. Para calcular o 
 1. Selecione a carga na lista ou abra o painel de detalhes.
 2. Clique em **Calcular**. A plataforma executa o mesmo motor de cálculo de taxa que a Calculadora web, usando os parâmetros armazenados da carga.
 3. Após a conclusão, o registro é atualizado com:
-   - `valorMinimo` — o valor mínimo de frete ANTT produzido pelo cálculo.
-   - `valorAtendido` — o resultado de conformidade:
-     - `ATENDE` — o `valorFrete` declarado atende ou supera o mínimo regulatório.
-     - `NAO_ATENDE` — o valor declarado está abaixo do mínimo da ANTT.
-     - `NAO_INFORMADO` — nenhum `valorFrete` foi fornecido; nenhuma comparação é possível.
+   - `valorMinimo`: o valor mínimo de frete ANTT produzido pelo cálculo.
+   - `valorAtendido`: o resultado de conformidade:
+     - `ATENDE`: o `valorFrete` declarado atende ou supera o mínimo regulatório.
+     - `NAO_ATENDE`: o valor declarado está abaixo do mínimo da ANTT.
+     - `NAO_INFORMADO`: nenhum `valorFrete` foi fornecido; nenhuma comparação é possível.
 
-Você também pode selecionar múltiplos registros de carga usando as caixas de seleção na lista e clicar em **Calcular selecionadas** para disparar o cálculo em lote para todos os itens selecionados de uma vez.
+Você também pode marcar vários registros pelas caixas de seleção na lista e clicar em **Calcular selecionadas** para disparar o cálculo em lote de todos os itens de uma só vez.
 
 ## Importação em massa via Excel
 
@@ -88,19 +88,19 @@ Cada registro de carga passa pelos seguintes estados:
 
 <CardGroup cols={2}>
   <Card title="situacao" icon="circle">
-    - **CRIADO** — registro está ativo e pode ser calculado ou editado.
-    - **CANCELADO** — registro foi permanentemente cancelado. O cancelamento é irreversível. A chave natural de um registro cancelado (`numero` \+ `serie` \+ `cnpjUnidade`) não pode ser reutilizada.
+    - **CRIADO**: registro está ativo e pode ser calculado ou editado.
+    - **CANCELADO**: registro foi permanentemente cancelado. O cancelamento é irreversível. A chave natural de um registro cancelado (`numero` \+ `serie` \+ `cnpjUnidade`) não pode ser reutilizada.
   </Card>
 
   <Card title="statusCalculo" icon="calculator">
-    - **NAO\_CALCULADO** — o mínimo de frete ainda não foi calculado.
-    - **CALCULADO** — o cálculo foi executado com sucesso e `valorMinimo` está preenchido.
+    - **NAO\_CALCULADO**: o mínimo de frete ainda não foi calculado.
+    - **CALCULADO**: o cálculo foi executado com sucesso e `valorMinimo` está preenchido.
   </Card>
 
   <Card title="valorAtendido" icon="check">
-    - **ATENDE** — o frete declarado atende ao mínimo da ANTT.
-    - **NAO\_ATENDE** — o frete declarado está abaixo do mínimo da ANTT.
-    - **NAO\_INFORMADO** — nenhum `valorFrete` foi declarado; a conformidade não pode ser avaliada.
+    - **ATENDE**: o frete declarado atende ao mínimo da ANTT.
+    - **NAO\_ATENDE**: o frete declarado está abaixo do mínimo da ANTT.
+    - **NAO\_INFORMADO**: nenhum `valorFrete` foi declarado; a conformidade não pode ser avaliada.
   </Card>
 </CardGroup>
 
@@ -110,6 +110,6 @@ Cada registro de carga passa pelos seguintes estados:
 
 ## Exportando dados de carga
 
-Para exportar a lista filtrada atual para Excel, clique em **Exportar Excel** na barra de ferramentas. O download inclui todas as colunas visíveis para cada registro que corresponde aos seus filtros ativos — útil para compartilhar relatórios de conformidade ou alimentar sistemas externos.
+Para exportar a lista filtrada atual para Excel, clique em **Exportar Excel** na barra de ferramentas. O download inclui todas as colunas visíveis para cada registro que corresponde aos seus filtros ativos, útil para compartilhar relatórios de conformidade ou alimentar sistemas externos.
 
 Aplique filtros (intervalo de datas, `situacao`, `statusCalculo`, `valorAtendido`, tipo de carga, eixos ou `cnpjUnidade`) antes de exportar para delimitar a saída exatamente aos registros que você precisa.

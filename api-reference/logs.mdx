@@ -1,0 +1,24 @@
+---
+title: "Logs"
+sidebarTitle: "Logs"
+description: "Onde acompanhar os logs de cada integração da calcANTT: API REST, Webhooks, Lincros e provedores de KM."
+---
+
+A calcANTT registra os logs em **dois lugares diferentes**, conforme o tipo de integração.
+
+## Logs da API REST
+
+As requisições feitas com **chave de API** (cálculos, criação e consulta de cargas, etc.) ficam em **Integrações → Logs de integração**. Lá você acompanha cada requisição: endpoint, status, data e hora e o `correlationId` para rastrear de ponta a ponta.
+
+## Logs de Webhooks, Lincros e KM
+
+Os logs dos **Webhooks**, da integração **Lincros** e dos provedores de **KM** (HERE, Google, TomTom, Mapbox) ficam em **Integrações → API & Marketplace**, **dentro de cada integrador/provedor**: abra o card correspondente e selecione a aba **Logs**.
+
+## Resumo
+
+| Integração | Onde ver os logs |
+| --- | --- |
+| API REST (chave de API) | **Integrações → Logs de integração** |
+| Webhooks | **Integrações → API & Marketplace** → card do webhook → aba **Logs** |
+| Lincros | **Integrações → API & Marketplace** → card da Lincros → aba **Logs** |
+| KM (HERE, Google, TomTom, Mapbox) | **Integrações → API & Marketplace** → card do provedor → aba **Logs** |

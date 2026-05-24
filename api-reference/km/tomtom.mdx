@@ -1,0 +1,23 @@
+---
+title: "TomTom"
+sidebarTitle: "TomTom"
+icon: "/logos/tomtom.png"
+description: "Provedor de geolocalização TomTom na calcANTT: Search v2 para geocoding e Routing v1 com modo caminhão."
+---
+
+**Slug:** `tomtom` · **Modo de transporte:** caminhão (`truck`)
+
+A integração com a **TomTom** usa o Search v2 para resolver o CEP e o Routing v1 para a distância.
+
+## Observações
+
+- Roteamento com `travelMode=truck` e `routeType=fastest` (rota mais rápida para caminhão).
+- O geocoding é restrito ao Brasil (`countrySet=BR`).
+
+## Quando priorizar
+
+Boa opção de modo caminhão, podendo ser combinada com a HERE na [ordem de prioridade](/api-reference/km/visao-geral#ordem-de-prioridade) para aumentar a cobertura.
+
+<Info>
+  A chave de API da TomTom é mantida pela calcANTT. Para usar, ative o provedor em **Integrações → API & Marketplace**, com o add-on contratado e ativo (**Configurações → Plano**).
+</Info>

@@ -1,0 +1,47 @@
+---
+title: "Roteirizador Lincros"
+sidebarTitle: "Roteirizador Lincros"
+icon: "/logos/lincros.png"
+description: "Integração com o Roteirizador Lincros: a calcANTT calcula o frete mínimo da ANTT, com os valores acompanhados diretamente na plataforma calcANTT."
+---
+
+Integração com o **Roteirizador [Lincros](https://www.lincros.com/)**: a calcANTT calcula o frete mínimo da ANTT a partir dos dados do Roteirizador.
+
+<Warning>
+  Assim como a integração do TMS, o Roteirizador depende de recursos e **limitações da própria plataforma Lincros**. Os pontos abaixo refletem essas limitações.
+</Warning>
+
+## Como ativar
+
+A ativação é feita pela equipe da calcANTT. Envie um e-mail para [support@calcantt.zohodesk.com](mailto:support@calcantt.zohodesk.com) solicitando a ativação da integração **Roteirizador Lincros**, com:
+
+- CNPJ da empresa
+- Nome da empresa
+- O pedido de ativação da integração Roteirizador Lincros
+
+Durante a ativação, a equipe vai pedir algumas informações de configuração (abaixo).
+
+## Informações de configuração
+
+### Tipo de veículo
+
+No Roteirizador Lincros, os tipos de veículo ficam em **Cadastros → Tipos de veículo**. Para cada um, informe:
+
+- a **descrição** do tipo de veículo, e
+- o **número de eixos** correspondente.
+
+A calcANTT usa esse De/Para para descobrir o número de eixos de cada cálculo.
+
+### Tipo de carga padrão
+
+O Roteirizador **não tem** a informação de tipo de carga. Por isso, um tipo de carga fica **fixo** na configuração (limitação da plataforma). Informe qual dos [12 tipos de carga da ANTT](/settings/faq#quais-tipos-de-carga-sao-suportados) deve ser usado como padrão.
+
+### Parâmetros de cálculo fixos
+
+Assim como no TMS, o Roteirizador não tem campos para **alto desempenho**, **composição veicular** nem **retorno vazio**. Essas três opções também ficam **fixas** na configuração. O significado de cada uma está no FAQ: [alto desempenho](/settings/faq#o-que-e-uma-operacao-de-transporte-de-alto-desempenho), [composição](/settings/faq#o-que-e-uma-composicao) e [retorno vazio](/settings/faq#o-que-e-o-retorno-vazio).
+
+## Onde acompanhar os resultados
+
+<Warning>
+  Diferente do TMS Lincros (em que o resultado volta para o TMS), o Roteirizador **não comporta o retorno do cálculo**. Por isso, os valores de frete mínimo da ANTT devem ser **acompanhados diretamente na plataforma calcANTT**.
+</Warning>

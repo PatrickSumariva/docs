@@ -1,0 +1,11 @@
+---
+title: "Criar carga"
+sidebarTitle: "Criar carga"
+openapi: "/api-reference/openapi.json POST /cargas"
+---
+
+Cria um registro de carga a partir do seu ERP ou TMS. O endpoint faz **upsert** pela chave natural `numero` + `serie` + `cnpjUnidade`: cria (`201`) ou atualiza (`200`).
+
+<Tip>
+  Como o endpoint faz upsert, reenviar o mesmo embarque atualiza o registro existente em vez de duplicar, seguro para reprocessamentos.
+</Tip>

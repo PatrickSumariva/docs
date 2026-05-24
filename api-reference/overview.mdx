@@ -1,33 +1,32 @@
 ---
-title: "API REST pública da calcANTT — visão geral e URL base"
+title: "Primeiros passos API REST"
+sidebarTitle: "Primeiros passos API REST"
 description: "A API REST da calcANTT expõe o cálculo de fretes e a gestão de cargas para sistemas externos. Autentique-se com uma chave de API e receba respostas em JSON."
 ---
 
-A API pública da calcANTT é uma API REST que expõe o cálculo de fretes e a gestão de cargas para sistemas externos como ERPs e plataformas TMS. Cada requisição deve incluir uma chave de API no cabeçalho `Authorization`, e cada resposta — incluindo erros — é em JSON.
+A API pública da calcANTT é uma API REST que expõe o cálculo de fretes e a gestão de cargas para sistemas externos como ERPs e plataformas TMS. Cada requisição deve incluir uma chave de API no cabeçalho `Authorization`, e cada resposta, incluindo erros, é em JSON.
 
 ## URL base
 
 Todos os endpoints da API pública são servidos em:
 
 ```text
-https://your-domain/api/public/v1
+https://app.calcantt.com.br/api/public/v1
 ```
-
-Substitua `your-domain` pelo hostname da sua instância da calcANTT.
 
 ## Endpoints disponíveis
 
 <CardGroup cols={2}>
-  <Card title="Calcular frete" icon="calculator" href="/api-reference/calculate">
-    `POST /calculadora/calcular` — Envie parâmetros de veículo e rota para obter as taxas mínimas da ANTT.
+  <Card title="Calcular frete" icon="calculator" href="/api-reference/calculadora/calcular">
+    `POST /calculadora/calcular`: Envie parâmetros de veículo e rota para obter as taxas mínimas da ANTT.
   </Card>
 
-  <Card title="Gerenciar cargas" icon="box" href="/api-reference/cargos">
+  <Card title="Gerenciar cargas" icon="box" href="/api-reference/cargas/criar">
     `POST /cargas`, `GET /cargas/{id}`, disparar cálculo e cancelamento.
   </Card>
 
-  <Card title="Tipos de veículo e carga" icon="list" href="/api-reference/vehicle-types">
-    `GET /calculadora/tipos-veiculo` e `GET /calculadora/tipos-carga` — buscar dados de referência.
+  <Card title="Tipos de veículo e carga" icon="list" href="/api-reference/calculadora/tipos-veiculo">
+    `GET /calculadora/tipos-veiculo` e `GET /calculadora/tipos-carga`: buscar dados de referência.
   </Card>
 
   <Card title="Autenticação" icon="key" href="/api-reference/authentication">
@@ -37,7 +36,7 @@ Substitua `your-domain` pelo hostname da sua instância da calcANTT.
 
 ## Formato da requisição
 
-Todas as requisições `POST` e `PUT` devem enviar `Content-Type: application/json` com um corpo JSON.
+Todas as requisições `POST` devem enviar `Content-Type: application/json` com um corpo JSON. As requisições `GET` não têm corpo.
 
 ## Formato da resposta
 
@@ -58,23 +57,23 @@ Respostas bem-sucedidas retornam `HTTP 200` com um corpo JSON. Respostas de erro
 </ResponseField>
 
 <ResponseField name="status" type="number">
-  Código de status HTTP repetido no corpo por conveniência.
+  Código de status HTTP repetido no corpo da resposta para facilitar o tratamento.
 </ResponseField>
 
 <ResponseField name="erro" type="string">
-  Código de erro legível por máquina (ex.: `VALIDATION_ERROR`, `SYSTEM_ERROR`).
+  Código de erro para tratamento programático (ex.: `VALIDATION_ERROR`, `SYSTEM_ERROR`).
 </ResponseField>
 
 <ResponseField name="mensagem" type="string">
-  Descrição do erro legível por humanos.
+  Descrição do erro em linguagem clara.
 </ResponseField>
 
 ## Limites de taxa e cotas
 
 Cada plano define:
 
-- `limiteRequisicoesMes` — total de requisições de API permitidas por mês
-- `limiteCalculosMes` — cálculos de frete permitidos por mês
+- `limiteRequisicoesMes`: total de requisições de API permitidas por mês
+- `limiteCalculosMes`: cálculos de frete permitidos por mês
 
 Quando um limite é excedido, a API retorna `HTTP 429`. Você pode ver o uso atual no painel ou em **Configurações → Faturamento**.
 

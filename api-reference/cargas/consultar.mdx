@@ -1,0 +1,11 @@
+---
+title: "Consultar carga"
+sidebarTitle: "Consultar carga"
+openapi: "/api-reference/openapi.json GET /cargas/{id}"
+---
+
+Retorna o registro de carga completo pelo `id`, incluindo o último resultado de cálculo (se já calculado) e o status de conformidade `valorAtendido`.
+
+<Note>
+  A API pública identifica as cargas apenas pelo `id` numérico. O UUID interno da plataforma não aparece nesta API.
+</Note>

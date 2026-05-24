@@ -1,0 +1,58 @@
+---
+title: "Geolocalização e cálculo de KM"
+sidebarTitle: "Visão geral"
+description: "Provedores de mapas (HERE, Google, TomTom, Mapbox) que convertem CEP de origem e destino em distância rodoviária para o cálculo de frete, com ordem de prioridade fixa."
+---
+
+Os provedores de geolocalização permitem calcular o frete **por CEP** em vez de informar a distância em quilômetros.
+
+Essa ativação é útil para quem precisa do cálculo, mas **não sabe ou não consegue informar o KM** no momento do cálculo ou da criação da carga. Habilitando um destes serviços, a calcANTT calcula o KM automaticamente a partir do **CEP de origem e destino**.
+
+Cada chamada envolve duas etapas:
+
+- **Geocoding**: converte o CEP em coordenada (latitude/longitude).
+- **Routing**: calcula a distância rodoviária entre a coordenada de origem e a de destino.
+
+## Provedores suportados
+
+| Provedor | Slug | Modo de transporte |
+| --- | --- | --- |
+| [HERE](/api-reference/km/here) | `here` | Caminhão (`truck`) |
+| [Google Maps Platform](/api-reference/km/google) | `google` | Carro (`DRIVE`) |
+| [TomTom](/api-reference/km/tomtom) | `tomtom` | Caminhão (`truck`) |
+| [Mapbox](/api-reference/km/mapbox) | `mapbox` | Carro (`driving`) |
+
+## Ordem de prioridade
+
+Você pode habilitar mais de um provedor. A ordem de prioridade é **fixa** (não é configurável):
+
+**HERE → Google → TomTom → Mapbox**
+
+A calcANTT usa o provedor de maior prioridade que estiver ativo. Se ele falhar (timeout ou sem cota), tenta o próximo da ordem automaticamente. Se todos falharem, o cálculo por CEP retorna erro e você informa a distância manualmente.
+
+## Chaves e habilitação
+
+<Note>
+  As chaves de API dos provedores são **mantidas pela calcANTT**: você não precisa contratar uma conta no HERE, Google, TomTom ou Mapbox.
+</Note>
+
+Todas as integrações ficam em **Integrações → API & Marketplace**. Para usar um provedor de KM, são duas condições:
+
+1. O **add-on** que libera o provedor foi **contratado e está ativo** em **Configurações → Plano**.
+2. O provedor está **ativado** no card dele em **Integrações → API & Marketplace**.
+
+<Info>
+  Cada provedor exige um **add-on próprio, com custo específico**. Ao tentar ativar um provedor sem um add-on válido, a calcANTT retorna `403` com uma mensagem explicando que é preciso contratar o add-on que o libere. (As integrações de Webhooks e Lincros não exigem add-on.)
+</Info>
+
+<Note>
+  A quantidade de cálculos de KM disponível é a mesma do **limite de cálculos do seu plano** (`limiteCalculosMes`). Por isso, ao aumentar o plano, o **custo do add-on do provedor também sobe**, acompanhando esse limite.
+</Note>
+
+## Cálculo por CEP na calculadora
+
+Os campos de **CEP de origem e destino** ficam sempre visíveis na calculadora. Para usá-los, é preciso ter um provedor de KM ativo: sem nenhum provedor ativo, a calculadora indica que é necessário ativar um provedor de KM, e você deve informar `distanciaKm` manualmente.
+
+## Logs
+
+Cada chamada (geocoding ou routing) é registrada com provedor, tipo de rotina, latência, CEPs envolvidos, KM resultante e status. Acompanhe na aba **Logs** do próprio provedor, em **Integrações → API & Marketplace** (abra o card do provedor e selecione **Logs**).

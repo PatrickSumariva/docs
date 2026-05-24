@@ -1,0 +1,63 @@
+/* calcANTT: CSS global
+   O Mintlify carrega automaticamente qualquer arquivo .css do projeto
+   em todas as páginas. Veja: Customize → Custom scripts/CSS. */
+
+/* ── Reduz a margem ESQUERDA ───────────────────────────────────────────
+   Por padrão o tema centraliza o bloco (conteúdo + índice "Na página")
+   com `justify-center`, o que deixa margens iguais e grandes dos dois lados.
+   Aqui alinhamos o bloco à esquerda: encosta o conteúdo na navegação,
+   reduzindo só a margem esquerda. A folga e o índice da direita continuam.
+   A row é flex-row-reverse, então `flex-end` empurra o grupo para a esquerda. */
+div:has(> #content-area) {
+  justify-content: flex-end !important;
+}
+
+/* Largura suficiente para a tabela do "Comparativo rápido" caber sem
+   scroll horizontal (o padrão é max-w-xl = 36rem). Ajuste se quiser. */
+#content-area {
+  max-width: 56rem !important;
+}
+
+/* ── Badge de webhook em roxo (diferenciar do POST, que é azul) ─────────
+   No Mintlify, webhook e POST usam as mesmas classes/cores. Por isso
+   escopamos apenas os webhooks: no menu pelo `id` do item, e no cabeçalho
+   da página pela rota atual (`data-current-path`). */
+
+/* Menu lateral: badge "HOOK" dos eventos de webhook */
+li[id^="/api-reference/webhooks/"] .method-nav-pill span {
+  background-color: #7c3aed !important;
+  color: #ffffff !important;
+}
+
+/* Cabeçalho da página de cada evento: pill "WEBHOOK" */
+html[data-current-path^="/api-reference/webhooks/"] .method-pill {
+  background-color: rgba(167, 139, 250, 0.2) !important;
+  color: #6d28d9 !important;
+}
+
+/* ── Logo do fornecedor ao lado do título (H1) ─────────────────────────
+   O Mintlify só mostra o `icon` do frontmatter no menu lateral, não ao
+   lado do título. Aqui adicionamos a logo via `::before` no #page-title,
+   escopado pela rota atual de cada página de integração. */
+html[data-current-path="/api-reference/km/here"] #page-title::before,
+html[data-current-path="/api-reference/km/google"] #page-title::before,
+html[data-current-path="/api-reference/km/tomtom"] #page-title::before,
+html[data-current-path="/api-reference/km/mapbox"] #page-title::before,
+html[data-current-path="/api-reference/lincros/tms"] #page-title::before,
+html[data-current-path="/api-reference/lincros/roteirizador"] #page-title::before {
+  content: "";
+  display: inline-block;
+  width: 1.1em;
+  height: 1.1em;
+  margin-right: 0.4em;
+  vertical-align: -0.18em;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+html[data-current-path="/api-reference/km/here"] #page-title::before { background-image: url("/logos/here.png"); }
+html[data-current-path="/api-reference/km/google"] #page-title::before { background-image: url("/logos/google.png"); }
+html[data-current-path="/api-reference/km/tomtom"] #page-title::before { background-image: url("/logos/tomtom.png"); }
+html[data-current-path="/api-reference/km/mapbox"] #page-title::before { background-image: url("/logos/mapbox.png"); }
+html[data-current-path="/api-reference/lincros/tms"] #page-title::before { background-image: url("/logos/lincros.png"); }
+html[data-current-path="/api-reference/lincros/roteirizador"] #page-title::before { background-image: url("/logos/lincros.png"); }

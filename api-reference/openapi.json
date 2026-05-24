@@ -1,16 +1,14 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
-    "license": {
-      "name": "MIT"
-    },
+    "title": "API Pública calcANTT",
+    "description": "API REST pública da calcANTT para cálculo do frete mínimo da tabela ANTT e gestão de cargas. Autentique cada requisição com uma chave de API no cabeçalho Authorization.",
     "version": "1.0.0"
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
+      "url": "https://app.calcantt.com.br/api/public/v1",
+      "description": "Produção"
     }
   ],
   "security": [
@@ -18,111 +16,272 @@
       "bearerAuth": []
     }
   ],
+  "tags": [
+    {
+      "name": "Calculadora",
+      "description": "Cálculo de frete mínimo ANTT e dados de referência de veículos e cargas."
+    },
+    {
+      "name": "Cargas",
+      "description": "Criação, consulta, cálculo e cancelamento de registros de carga."
+    }
+  ],
   "paths": {
-    "/plants": {
-      "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      },
+    "/calculadora/calcular": {
       "post": {
-        "description": "Creates a new plant in the store",
+        "tags": ["Calculadora"],
+        "summary": "Calcular frete",
+        "description": "Recebe os parâmetros de rota e veículo e retorna o frete mínimo da ANTT, detalhado por tabela aplicável e componente de custo. Requer a permissão `CALCULAR_FRETE`.",
+        "operationId": "calcularFrete",
         "requestBody": {
-          "description": "Plant to add to the store",
+          "required": true,
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
+              "schema": { "$ref": "#/components/schemas/CalcularRequest" }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
-            "description": "plant response",
+            "description": "Cálculo realizado com sucesso.",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Plant"
-                }
+                "schema": { "$ref": "#/components/schemas/CalcularResponse" }
               }
             }
           },
           "400": {
-            "description": "unexpected error",
+            "description": "Campos inválidos (`VALIDATION_ERROR`).",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
+                "schema": { "$ref": "#/components/schemas/ErroApiPublica" }
               }
             }
           }
         }
       }
     },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
+    "/calculadora/tipos-veiculo": {
+      "get": {
+        "tags": ["Calculadora"],
+        "summary": "Tipos de veículo",
+        "description": "Retorna as configurações de veículo aceitas pela calculadora. Use o `numEixos` da entrada escolhida (ou o `id` dela em `tipoVeiculoId`) ao chamar `/calculadora/calcular`. Requer a permissão `CALCULAR_FRETE`.",
+        "operationId": "listarTiposVeiculo",
+        "responses": {
+          "200": {
+            "description": "Lista de configurações de veículo.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/TipoVeiculo" }
+                },
+                "example": [
+                  { "id": 1, "numEixos": 2, "descricao": "Veículo leve / VUC", "exemplo": "Fiorino, HR, Sprinter" },
+                  { "id": 2, "numEixos": 3, "descricao": "Toco", "exemplo": "VW Delivery, Ford Cargo 1119" },
+                  { "id": 3, "numEixos": 4, "descricao": "Truck", "exemplo": "Mercedes Atego, VW 17.230" },
+                  { "id": 4, "numEixos": 5, "descricao": "Carreta Simples", "exemplo": "Cavalo 3 eixos + semirreboque 2 eixos" },
+                  { "id": 5, "numEixos": 6, "descricao": "Carreta Trucada", "exemplo": "Cavalo 3 eixos + semirreboque 3 eixos" },
+                  { "id": 6, "numEixos": 7, "descricao": "Bitrem / Romeu e Julieta", "exemplo": "Cavalo + 2 reboques" },
+                  { "id": 7, "numEixos": 9, "descricao": "Rodotrem", "exemplo": "Cavalo + 2 semirreboques longos" }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/calculadora/tipos-carga": {
+      "get": {
+        "tags": ["Calculadora"],
+        "summary": "Tipos de carga",
+        "description": "Retorna os tipos de carga aceitos pela calculadora. Use a lista para obter os valores válidos de `tipoCargaId` antes de calcular ou criar uma carga. Requer a permissão `CALCULAR_FRETE`.",
+        "operationId": "listarTiposCarga",
+        "responses": {
+          "200": {
+            "description": "Lista de tipos de carga.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/TipoCarga" }
+                },
+                "example": [
+                  { "id": 1, "codigo": "GRANEL_SOLIDO", "nome": "Granel sólido" },
+                  { "id": 2, "codigo": "GRANEL_LIQUIDO", "nome": "Granel líquido" },
+                  { "id": 3, "codigo": "FRIGORIFICADA_OU_AQUECIDA", "nome": "Frigorificada ou Aquecida" },
+                  { "id": 4, "codigo": "CONTEINERIZADA", "nome": "Conteinerizada" },
+                  { "id": 5, "codigo": "CARGA_GERAL", "nome": "Carga Geral" },
+                  { "id": 6, "codigo": "NEOGRANEL", "nome": "Neogranel" },
+                  { "id": 7, "codigo": "PERIGOSA_GRANEL_SOLIDO", "nome": "Perigosa (granel sólido)" },
+                  { "id": 8, "codigo": "PERIGOSA_GRANEL_LIQUIDO", "nome": "Perigosa (granel líquido)" },
+                  { "id": 9, "codigo": "PERIGOSA_FRIGORIFICADA_OU_AQUECIDA", "nome": "Perigosa (frigorificada ou aquecida)" },
+                  { "id": 10, "codigo": "PERIGOSA_CONTEINERIZADA", "nome": "Perigosa (conteinerizada)" },
+                  { "id": 11, "codigo": "PERIGOSA_CARGA_GERAL", "nome": "Perigosa (carga geral)" },
+                  { "id": 12, "codigo": "GRANEL_PRESSURIZADA", "nome": "Carga Granel Pressurizada" }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cargas": {
+      "post": {
+        "tags": ["Cargas"],
+        "summary": "Criar carga",
+        "description": "Cria um registro de carga. O endpoint faz **upsert** pela chave natural `numero` + `serie` + `cnpjUnidade`: cria (`201`) se ainda não existe ou atualiza (`200`) se já existe e está ativa. Requer a permissão `GERENCIAR_CARGAS`.",
+        "operationId": "criarCarga",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CriarCargaRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Carga criada.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CargaResultado" },
+                "example": { "id": 1234, "status": 201, "operacao": "CRIADA", "mensagem": "Carga registrada com sucesso." }
+              }
+            }
+          },
+          "200": {
+            "description": "Carga existente atualizada (mesma chave natural).",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CargaResultado" },
+                "example": { "id": 1234, "status": 200, "operacao": "ATUALIZADA", "mensagem": "Carga atualizada com sucesso." }
+              }
+            }
+          },
+          "400": {
+            "description": "Campos inválidos (`VALIDATION_ERROR`).",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroApiPublica" },
+                "example": { "correlationId": null, "erro": "VALIDATION_ERROR", "erros": ["kmTotal: must not be null"], "mensagem": "Campos inválidos: {kmTotal=must not be null}", "status": 400, "timestamp": "2026-05-24T18:30:00Z" }
+              }
+            }
+          },
+          "409": {
+            "description": "Já existe uma carga cancelada com a mesma chave natural: `numero` + `serie` + `cnpjUnidade` não pode ser reutilizada.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroApiPublica" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cargas/{id}": {
+      "get": {
+        "tags": ["Cargas"],
+        "summary": "Consultar carga",
+        "description": "Retorna o registro de carga completo pelo `id`, incluindo o último resultado de cálculo (se já calculado) e o status de conformidade `valorAtendido`. Requer a permissão `GERENCIAR_CARGAS`.",
+        "operationId": "consultarCarga",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "ID of plant to delete",
             "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
+            "description": "Identificador numérico da carga.",
+            "schema": { "type": "integer", "example": 1234 }
           }
         ],
         "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
+          "200": {
+            "description": "Registro de carga.",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
+                "schema": { "$ref": "#/components/schemas/Carga" }
+              }
+            }
+          },
+          "404": {
+            "description": "Carga não encontrada.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroSimples" },
+                "example": { "status": 404, "mensagem": "Carga não encontrada" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cargas/{id}/calcular": {
+      "post": {
+        "tags": ["Cargas"],
+        "summary": "Calcular carga",
+        "description": "Dispara o cálculo do frete mínimo ANTT para um registro de carga existente e atualiza `valorMinimo` e `valorAtendido`. Requer a permissão `GERENCIAR_CARGAS`.",
+        "operationId": "calcularCarga",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Identificador numérico da carga a calcular.",
+            "schema": { "type": "integer", "example": 1234 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Carga calculada. Retorna o resultado do cálculo com os dados da carga e as tabelas vigentes.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CargaCalculoResultado" }
+              }
+            }
+          },
+          "404": {
+            "description": "Carga não encontrada.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroSimples" },
+                "example": { "status": 404, "mensagem": "Carga não encontrada" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cargas/{id}/cancelar": {
+      "post": {
+        "tags": ["Cargas"],
+        "summary": "Cancelar carga",
+        "description": "Cancela **definitivamente** um registro de carga, definindo `situacao` como `CANCELADO`. O cancelamento é irreversível e a chave natural não pode ser reutilizada. Requer a permissão `GERENCIAR_CARGAS`.",
+        "operationId": "cancelarCarga",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Identificador numérico da carga a cancelar.",
+            "schema": { "type": "integer", "example": 1234 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Carga cancelada.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CargaResultado" },
+                "example": { "id": 1234, "status": 200, "operacao": "CANCELADA", "mensagem": "Carga cancelada com sucesso. Cancelamento é definitivo." }
+              }
+            }
+          },
+          "404": {
+            "description": "Carga não encontrada.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroSimples" },
+                "example": { "status": 404, "mensagem": "Carga não encontrada" }
               }
             }
           }
@@ -131,86 +290,556 @@
     }
   },
   "webhooks": {
-    "/plant/webhook": {
+    "CARGA_CRIADA": {
       "post": {
-        "description": "Information about a new plant added to the store",
+        "tags": ["Webhooks"],
+        "summary": "Carga criada",
+        "description": "Enviado quando uma carga é cadastrada (manual, importação ou Lincros). `dados.carga` traz o registro recém-criado, ainda sem cálculo (`statusCalculo: NAO_CALCULADO`, `calculo: null`).",
         "requestBody": {
-          "description": "Plant added to the store",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewPlant"
+                "type": "object",
+                "properties": {
+                  "tipoEvento": { "type": "string", "example": "CARGA_CRIADA" },
+                  "ocorridoEm": { "type": "string", "format": "date-time", "example": "2026-04-21T14:30:00" },
+                  "endpointId": { "type": "integer", "example": 42 },
+                  "endpointNome": { "type": "string", "example": "ERP Produção" },
+                  "dados": {
+                    "type": "object",
+                    "properties": { "carga": { "$ref": "#/components/schemas/Carga" } }
+                  }
+                }
               }
             }
           }
         },
-        "responses": {
-          "200": {
-            "description": "Return a 200 status to indicate that the data was received successfully"
+        "responses": { "200": { "description": "Retorne um status `2xx` para confirmar o recebimento." } }
+      }
+    },
+    "CARGA_CALCULADA": {
+      "post": {
+        "tags": ["Webhooks"],
+        "summary": "Carga calculada",
+        "description": "Enviado quando um cálculo é concluído. `dados.carga` traz o registro com `calculo` preenchido (`statusCalculo: CALCULADO`).",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tipoEvento": { "type": "string", "example": "CARGA_CALCULADA" },
+                  "ocorridoEm": { "type": "string", "format": "date-time", "example": "2026-04-21T14:30:00" },
+                  "endpointId": { "type": "integer", "example": 42 },
+                  "endpointNome": { "type": "string", "example": "ERP Produção" },
+                  "dados": {
+                    "type": "object",
+                    "properties": {
+                      "carga": { "$ref": "#/components/schemas/Carga" }
+                    }
+                  }
+                }
+              }
+            }
           }
-        }
+        },
+        "responses": { "200": { "description": "Retorne um status `2xx` para confirmar o recebimento." } }
+      }
+    },
+    "CARGA_EDITADA": {
+      "post": {
+        "tags": ["Webhooks"],
+        "summary": "Carga editada",
+        "description": "Enviado quando uma carga existente é alterada. `dados.carga` traz o registro completo (com `calculo` quando já calculada).",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tipoEvento": { "type": "string", "example": "CARGA_EDITADA" },
+                  "ocorridoEm": { "type": "string", "format": "date-time", "example": "2026-04-21T14:30:00" },
+                  "endpointId": { "type": "integer", "example": 42 },
+                  "endpointNome": { "type": "string", "example": "ERP Produção" },
+                  "dados": {
+                    "type": "object",
+                    "properties": { "carga": { "$ref": "#/components/schemas/Carga" } }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Retorne um status `2xx` para confirmar o recebimento." } }
+      }
+    },
+    "CARGA_CANCELADA": {
+      "post": {
+        "tags": ["Webhooks"],
+        "summary": "Carga cancelada",
+        "description": "Enviado quando uma carga é cancelada definitivamente. `dados.carga` vem com `situacao: CANCELADO` e os campos `canceladoPorNome` e `canceladoEm` preenchidos.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tipoEvento": { "type": "string", "example": "CARGA_CANCELADA" },
+                  "ocorridoEm": { "type": "string", "format": "date-time", "example": "2026-04-21T14:30:00" },
+                  "endpointId": { "type": "integer", "example": 42 },
+                  "endpointNome": { "type": "string", "example": "ERP Produção" },
+                  "dados": {
+                    "type": "object",
+                    "properties": { "carga": { "$ref": "#/components/schemas/Carga" } }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Retorne um status `2xx` para confirmar o recebimento." } }
+      }
+    },
+    "CONSUMO_LIMITE_ATINGIDO": {
+      "post": {
+        "tags": ["Webhooks"],
+        "summary": "Consumo: limite atingido",
+        "description": "Enviado no primeiro bloqueio do ciclo por limite de cálculos ou requisições.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tipoEvento": { "type": "string", "example": "CONSUMO_LIMITE_ATINGIDO" },
+                  "ocorridoEm": { "type": "string", "format": "date-time", "example": "2026-04-21T14:30:00" },
+                  "endpointId": { "type": "integer", "example": 42 },
+                  "endpointNome": { "type": "string", "example": "ERP Produção" },
+                  "dados": {
+                    "type": "object",
+                    "properties": {
+                      "recurso": { "type": "string", "example": "CALCULOS_MES" },
+                      "mesReferencia": { "type": "string", "example": "2026-04" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Retorne um status `2xx` para confirmar o recebimento." } }
+      }
+    },
+    "CONFIGURACAO_WEBHOOK_ALTERADA": {
+      "post": {
+        "tags": ["Webhooks"],
+        "summary": "Configuração de webhook alterada",
+        "description": "Enviado quando um endpoint de webhook é criado, editado ou removido. `dados.alteracoes` lista os campos alterados.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tipoEvento": { "type": "string", "example": "CONFIGURACAO_WEBHOOK_ALTERADA" },
+                  "ocorridoEm": { "type": "string", "format": "date-time", "example": "2026-04-21T14:30:00" },
+                  "endpointId": { "type": "integer", "example": 42 },
+                  "endpointNome": { "type": "string", "example": "ERP Produção" },
+                  "dados": {
+                    "type": "object",
+                    "properties": {
+                      "endpointId": { "type": "integer", "example": 42 },
+                      "acao": { "type": "string", "example": "ATUALIZADO" },
+                      "endpointAfetadoId": { "type": "integer", "example": 42 },
+                      "alteracoes": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "campo": { "type": "string", "example": "ativo" },
+                            "valorAnterior": { "description": "Valor anterior do campo. O tipo varia conforme o campo (booleano, string, etc.).", "example": true },
+                            "valorNovo": { "description": "Novo valor do campo. O tipo varia conforme o campo (booleano, string, etc.).", "example": false }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Retorne um status `2xx` para confirmar o recebimento." } }
+      }
+    },
+    "CHAVE_API_ALTERADA": {
+      "post": {
+        "tags": ["Webhooks"],
+        "summary": "Chave de API alterada",
+        "description": "Enviado quando uma chave de API é criada, rotacionada, ativada/inativada ou revogada.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tipoEvento": { "type": "string", "example": "CHAVE_API_ALTERADA" },
+                  "ocorridoEm": { "type": "string", "format": "date-time", "example": "2026-04-21T14:30:00" },
+                  "endpointId": { "type": "integer", "example": 42 },
+                  "endpointNome": { "type": "string", "example": "ERP Produção" },
+                  "dados": {
+                    "type": "object",
+                    "properties": {
+                      "acao": { "type": "string", "example": "ROTACIONADA" },
+                      "chaveApi": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "integer", "example": 9 },
+                          "empresaId": { "type": "integer", "example": 3 },
+                          "nome": { "type": "string", "example": "Integração ERP" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Retorne um status `2xx` para confirmar o recebimento." } }
       }
     }
   },
   "components": {
-    "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "description": "The name of the plant",
-            "type": "string"
-          },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
-          }
-        }
-      },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
-          },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
-              }
-            }
-          }
-        ]
-      },
-      "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "message": {
-            "type": "string"
-          }
-        }
-      }
-    },
     "securitySchemes": {
       "bearerAuth": {
         "type": "http",
-        "scheme": "bearer"
+        "scheme": "bearer",
+        "description": "Chave de API no formato `calt_live_...`, enviada como `Authorization: Bearer calt_live_sua_chave_aqui`."
+      }
+    },
+    "schemas": {
+      "CalcularRequest": {
+        "type": "object",
+        "required": ["tipoCargaId", "altoDesempenho", "composicao", "retornoVazio", "dataCarga"],
+        "properties": {
+          "numEixos": {
+            "type": "integer",
+            "description": "Número de eixos da composição do veículo (conte todos os eixos, suspensos ou não). Obrigatório, exceto quando `tipoVeiculoId` é informado (nesse caso os eixos são lidos do tipo de veículo). As configurações de referência estão em [`GET /calculadora/tipos-veiculo`](/api-reference/calculadora/tipos-veiculo); outros valores também são aceitos e seguem a regra de aproximação da ANTT (veja o [FAQ](/settings/faq#quantos-eixos-devo-informar-no-calculo)).",
+            "example": 6
+          },
+          "tipoVeiculoId": {
+            "type": "integer",
+            "description": "ID de um tipo de veículo cadastrado na calcANTT. Alternativa a `numEixos`: quando informado, o número de eixos é lido do próprio tipo de veículo, então não é necessário enviar `numEixos`. Busque os IDs válidos em [`GET /calculadora/tipos-veiculo`](/api-reference/calculadora/tipos-veiculo).",
+            "example": 5
+          },
+          "distanciaKm": {
+            "type": "number",
+            "description": "Distância da rota em quilômetros. Use `0` se fornecer `cepOrigem` e `cepDestino`.",
+            "example": 500
+          },
+          "cepOrigem": {
+            "type": "string",
+            "description": "CEP de origem (com ou sem máscara). Usado quando `distanciaKm` é `0`. Requer uma integração de mapas ativa.",
+            "example": "01001-000"
+          },
+          "cepDestino": {
+            "type": "string",
+            "description": "CEP de destino (com ou sem máscara). Usado quando `distanciaKm` é `0`. Requer uma integração de mapas ativa.",
+            "example": "20040-002"
+          },
+          "tipoCargaId": {
+            "type": "integer",
+            "description": "ID do tipo de carga. Busque os IDs válidos em [`GET /calculadora/tipos-carga`](/api-reference/calculadora/tipos-carga).",
+            "example": 1
+          },
+          "altoDesempenho": {
+            "type": "boolean",
+            "description": "`true` para operações de transporte de alto desempenho. Veja o [FAQ](/settings/faq#o-que-e-uma-operacao-de-transporte-de-alto-desempenho).",
+            "example": false
+          },
+          "composicao": {
+            "type": "boolean",
+            "description": "`true` para composições veiculares, incluindo veículos simples que não desacoplam o implemento. Veja o [FAQ](/settings/faq#o-que-e-uma-composicao).",
+            "example": false
+          },
+          "retornoVazio": {
+            "type": "boolean",
+            "description": "`true` para incluir o adicional de retorno em vazio no total. Veja o [FAQ](/settings/faq#o-que-e-o-retorno-vazio).",
+            "example": false
+          },
+          "valorFrete": {
+            "type": "number",
+            "description": "Valor do frete a comparar com o piso mínimo da ANTT (BRL). Opcional. Quando informado, cada tabela na resposta traz `valorAtendido` (booleano) indicando se o valor atende ao piso daquela tabela.",
+            "example": 900.0
+          },
+          "dataCarga": {
+            "type": "string",
+            "format": "date",
+            "description": "Data da carga (`yyyy-MM-dd`). Determina qual versão da tabela ANTT estava vigente nessa data.",
+            "example": "2026-05-23"
+          }
+        }
+      },
+      "CalcularResponse": {
+        "type": "object",
+        "properties": {
+          "sucesso": { "type": "boolean", "description": "`true` quando a requisição foi processada com sucesso.", "example": true },
+          "calculado": { "type": "boolean", "description": "`true` quando ao menos uma tabela vigente foi calculada.", "example": true },
+          "mensagem": { "type": "string", "description": "Resumo legível do resultado.", "example": "Cálculo realizado para 1 tabela(s) vigente(s)." },
+          "parametros": {
+            "type": "object",
+            "description": "Eco dos parâmetros usados no cálculo.",
+            "properties": {
+              "distanciaKm": { "type": "number", "example": 10 },
+              "tipoVeiculoId": { "type": "integer", "nullable": true, "example": null },
+              "numEixos": { "type": "integer", "example": 7 },
+              "tipoCargaId": { "type": "integer", "example": 1 },
+              "altoDesempenho": { "type": "boolean", "example": true },
+              "composicao": { "type": "boolean", "example": true },
+              "retornoVazio": { "type": "boolean", "example": true },
+              "dataCarga": { "type": "string", "format": "date", "example": "2026-05-08" },
+              "valorFrete": { "type": "number", "nullable": true, "example": 350 },
+              "cepOrigem": { "type": "string", "nullable": true, "example": null },
+              "cepDestino": { "type": "string", "nullable": true, "example": null }
+            }
+          },
+          "tipoCargaCodigo": { "type": "string", "example": "GRANEL_SOLIDO" },
+          "tipoCargaNome": { "type": "string", "example": "Granel sólido" },
+          "numEixos": { "type": "integer", "example": 7 },
+          "tipoVeiculoDescricao": { "type": "string", "example": "Bitrem / Romeu e Julieta" },
+          "calculadoEm": { "type": "string", "format": "date-time", "example": "2026-05-23T18:30:00Z" },
+          "cacheHit": {
+            "type": "boolean",
+            "description": "`true` quando o resultado veio do cache. Resultados em cache são idênticos a cálculos recentes.",
+            "example": false
+          },
+          "tabelas": {
+            "type": "array",
+            "description": "Uma ou mais tabelas ANTT que estavam vigentes na `dataCarga`.",
+            "items": { "$ref": "#/components/schemas/Tabela" }
+          },
+          "avisos": {
+            "type": "array",
+            "description": "Mensagens de aviso (ex.: combinação de parâmetros incomum). Pode estar vazio.",
+            "items": { "type": "string" }
+          }
+        }
+      },
+      "Tabela": {
+        "type": "object",
+        "properties": {
+          "tabelaId": { "type": "integer", "example": 3 },
+          "tabelaCodigo": { "type": "string", "description": "Código da tabela ANTT aplicada.", "example": "C" },
+          "tabelaNome": { "type": "string", "example": "TRANSPORTE RODOVIÁRIO DE CARGA LOTAÇÃO EM OPERAÇÕES DE ALTO DESEMPENHO COM CONTRATAÇÃO DE COMPOSIÇÃO VEICULAR OU CAMINHÃO SIMPLES" },
+          "padraoCodigo": { "type": "string", "example": "C" },
+          "padraoNome": { "type": "string", "example": "Padrão C" },
+          "altoDesempenho": { "type": "boolean", "description": "`true` se esta tabela é de alto desempenho.", "example": true },
+          "composicao": { "type": "boolean", "description": "`true` se esta tabela é de composição veicular.", "example": true },
+          "menorValor": { "type": "boolean", "description": "`true` na tabela de menor `valorTotal` entre as retornadas.", "example": true },
+          "valorAtendido": { "type": "boolean", "nullable": true, "description": "`true` quando o `valorFrete` informado atende ou supera o `valorTotal` desta tabela. `null` quando `valorFrete` não foi enviado.", "example": false },
+          "tipoCargaId": { "type": "integer", "example": 1 },
+          "tipoCargaCodigo": { "type": "string", "example": "GRANEL_SOLIDO" },
+          "tipoCargaNome": { "type": "string", "example": "Granel sólido" },
+          "numEixos": { "type": "integer", "example": 7 },
+          "tipoVeiculoDescricao": { "type": "string", "example": "Bitrem / Romeu e Julieta" },
+          "componentes": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Componente" }
+          },
+          "subtotalIda": { "type": "number", "description": "Total do frete de ida (soma dos componentes de ida).", "example": 328.99 },
+          "valorRetornoVazio": { "type": "number", "description": "Adicional de retorno em vazio. `0` quando `retornoVazio` é `false`.", "example": 62.44 },
+          "valorTotal": { "type": "number", "description": "Total final: `subtotalIda + valorRetornoVazio`.", "example": 391.43 },
+          "detalhesOperacao": { "type": "string", "description": "Memória de cálculo legível: operação, distância, coeficientes e fórmulas usadas." }
+        }
+      },
+      "Componente": {
+        "type": "object",
+        "properties": {
+          "codigo": { "type": "string", "description": "Código do componente de custo (ex.: `CCD`, `CC`, `RETORNO_VAZIO`).", "example": "CCD" },
+          "nome": { "type": "string", "example": "Deslocamento" },
+          "unidade": { "type": "string", "enum": ["POR_KM", "FIXO", "PERCENTUAL"], "example": "POR_KM" },
+          "componentesBase": {
+            "type": "array",
+            "description": "Componentes sobre os quais este incide. Presente em componentes percentuais, como o retorno vazio.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "codigo": { "type": "string", "example": "CCD" },
+                "nome": { "type": "string", "example": "Deslocamento" }
+              }
+            }
+          },
+          "tarifa": { "type": "number", "example": 6.787 },
+          "valor": { "type": "number", "example": 67.87 },
+          "numEixosUsado": { "type": "integer", "description": "Número de eixos usado neste componente (após a regra de aproximação, quando aplicável).", "example": 7 },
+          "formula": { "type": "string", "description": "Memória legível de como o `valor` foi calculado.", "example": "10 km × R$ 6,787/km" }
+        }
+      },
+      "TipoVeiculo": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "description": "ID do tipo de veículo. Pode ser enviado em `tipoVeiculoId` na requisição de cálculo.", "example": 5 },
+          "numEixos": { "type": "integer", "description": "Número de eixos. Pode ser enviado em `numEixos` na requisição de cálculo.", "example": 6 },
+          "descricao": { "type": "string", "description": "Descrição da configuração do veículo.", "example": "Carreta Trucada" },
+          "exemplo": { "type": "string", "description": "Exemplos de veículos dessa configuração.", "example": "Cavalo 3 eixos + semirreboque 3 eixos" }
+        }
+      },
+      "TipoCarga": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "description": "ID do tipo de carga. Envie em `tipoCargaId` na requisição de cálculo.", "example": 1 },
+          "codigo": { "type": "string", "description": "Código do tipo de carga.", "example": "GRANEL_SOLIDO" },
+          "nome": { "type": "string", "description": "Nome do tipo de carga.", "example": "Granel sólido" }
+        }
+      },
+      "CriarCargaRequest": {
+        "type": "object",
+        "required": ["dataCarga", "numero", "serie", "cnpjUnidade", "tipoCargaId", "numEixos", "altoDesempenho", "composicao", "retornoVazio"],
+        "properties": {
+          "dataCarga": { "type": "string", "format": "date", "description": "Data da carga (`yyyy-MM-dd`).", "example": "2026-05-23" },
+          "numero": { "type": "string", "description": "Número do documento (ex.: número do CT-e).", "example": "000123" },
+          "serie": { "type": "string", "description": "Série do documento.", "example": "1" },
+          "unidade": { "type": "string", "description": "Nome da unidade ou filial emissora.", "example": "Filial SP" },
+          "cnpjUnidade": { "type": "string", "description": "CNPJ da unidade emissora.", "example": "12345678000199" },
+          "kmTotal": { "type": "number", "description": "Distância total da rota em quilômetros. Obrigatório, exceto quando `cepOrigem` e `cepDestino` são informados (nesse caso a distância é calculada automaticamente, com uma integração de mapas ativa).", "example": 500 },
+          "tipoCargaId": { "type": "integer", "description": "ID do tipo de carga. Veja [`GET /calculadora/tipos-carga`](/api-reference/calculadora/tipos-carga).", "example": 1 },
+          "numEixos": { "type": "integer", "description": "Número de eixos da composição do veículo (conte todos os eixos, suspensos ou não). As configurações de referência estão em [`GET /calculadora/tipos-veiculo`](/api-reference/calculadora/tipos-veiculo); outros valores também são aceitos e seguem a regra de aproximação da ANTT (veja o [FAQ](/settings/faq#quantos-eixos-devo-informar-no-calculo)).", "example": 6 },
+          "altoDesempenho": { "type": "boolean", "description": "`true` para operações de transporte de alto desempenho. Veja o [FAQ](/settings/faq#o-que-e-uma-operacao-de-transporte-de-alto-desempenho).", "example": false },
+          "composicao": { "type": "boolean", "description": "`true` para composições veiculares, incluindo veículos simples que não desacoplam o implemento. Veja o [FAQ](/settings/faq#o-que-e-uma-composicao).", "example": false },
+          "retornoVazio": { "type": "boolean", "description": "`true` para incluir o adicional de retorno em vazio no total. Veja o [FAQ](/settings/faq#o-que-e-o-retorno-vazio).", "example": false },
+          "valorFrete": { "type": "number", "description": "Valor do frete declarado (BRL). Usado para determinar `valorAtendido`.", "example": 950.0 },
+          "identificador": { "type": "string", "description": "Seu identificador interno (ex.: chave do CT-e)." },
+          "transportador": { "type": "string", "description": "Nome da transportadora." },
+          "cnpjTransportador": { "type": "string", "description": "CNPJ da transportadora." },
+          "cepOrigem": { "type": "string", "description": "CEP de origem (com ou sem máscara). Alternativa ao `kmTotal`: informe `cepOrigem` e `cepDestino` para a calcANTT calcular a distância automaticamente. Requer uma integração de mapas ativa.", "example": "01001-000" },
+          "cepDestino": { "type": "string", "description": "CEP de destino (com ou sem máscara). Veja `cepOrigem`.", "example": "20040-002" },
+          "observacao": { "type": "string", "description": "Observação em texto livre." }
+        }
+      },
+      "Carga": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1234 },
+          "dataCarga": { "type": "string", "format": "date", "example": "2026-04-01" },
+          "numero": { "type": "string", "example": "000123" },
+          "serie": { "type": "string", "example": "1" },
+          "identificador": { "type": "string", "nullable": true, "description": "Seu identificador interno (ex.: chave do CT-e).", "example": "CTE-000123" },
+          "tipo": { "type": "string", "description": "Origem do registro (ex.: `Embarque`).", "example": "Embarque" },
+          "transportador": { "type": "string", "nullable": true, "example": "Transportadora Exemplo Ltda" },
+          "cnpjTransportador": { "type": "string", "nullable": true, "example": "12345678000199" },
+          "unidade": { "type": "string", "nullable": true, "example": "Filial Exemplo SP" },
+          "cnpjUnidade": { "type": "string", "example": "98765432000155" },
+          "kmTotal": { "type": "number", "nullable": true, "example": 500 },
+          "tipoCargaId": { "type": "integer", "example": 5 },
+          "tipoCargaNome": { "type": "string", "example": "Carga Geral" },
+          "numEixos": { "type": "integer", "example": 7 },
+          "altoDesempenho": { "type": "boolean", "example": false },
+          "composicao": { "type": "boolean", "example": true },
+          "retornoVazio": { "type": "boolean", "example": false },
+          "valorFrete": { "type": "number", "nullable": true, "description": "Frete declarado (BRL). Usado para determinar `valorAtendido`.", "example": 9500.0 },
+          "observacao": { "type": "string", "nullable": true, "example": null },
+          "cepOrigem": { "type": "string", "nullable": true, "example": null },
+          "cepDestino": { "type": "string", "nullable": true, "example": null },
+          "tipoVeiculoDescricao": { "type": "string", "example": "Bitrem / Romeu e Julieta" },
+          "situacao": { "type": "string", "enum": ["CRIADO", "CANCELADO"], "example": "CRIADO" },
+          "statusCalculo": { "type": "string", "enum": ["NAO_CALCULADO", "CALCULADO"], "example": "CALCULADO" },
+          "valorMinimo": { "type": "number", "nullable": true, "description": "Valor mínimo de frete ANTT da tabela selecionada. `null` antes do cálculo.", "example": 12000.0 },
+          "valorAtendido": {
+            "type": "string",
+            "enum": ["ATENDE", "NAO_ATENDE", "NAO_INFORMADO"],
+            "description": "`ATENDE`: o frete declarado atende ou supera o mínimo. `NAO_ATENDE`: abaixo do mínimo. `NAO_INFORMADO`: sem `valorFrete`.",
+            "example": "NAO_ATENDE"
+          },
+          "tabelaSelecionadaId": { "type": "integer", "nullable": true, "description": "ID da tabela escolhida como referência de conformidade.", "example": 1 },
+          "calculo": { "type": "object", "nullable": true, "description": "Snapshot do último cálculo, no formato da resposta da calculadora (`parametros`, `tabelas`, `componentes`, `cacheHit`). `null` antes do primeiro cálculo." },
+          "criadoPorNome": { "type": "string", "nullable": true, "example": "Maria Silva" },
+          "criadoEm": { "type": "string", "format": "date-time", "example": "2026-05-12T18:30:00Z" },
+          "calculadoPorNome": { "type": "string", "nullable": true, "example": "Maria Silva" },
+          "calculadoEm": { "type": "string", "format": "date-time", "nullable": true, "example": "2026-05-12T18:30:05Z" },
+          "canceladoPorNome": { "type": "string", "nullable": true, "example": null },
+          "canceladoEm": { "type": "string", "format": "date-time", "nullable": true, "example": null },
+          "atualizadoEm": { "type": "string", "format": "date-time", "nullable": true, "example": "2026-05-12T18:30:05Z" }
+        }
+      },
+      "CargaResultado": {
+        "type": "object",
+        "description": "Resultado de uma operação sobre a carga (criar, atualizar ou cancelar).",
+        "properties": {
+          "id": { "type": "integer", "description": "ID do registro de carga.", "example": 1234 },
+          "status": { "type": "integer", "description": "Código de status HTTP da operação (`201` criada, `200` atualizada ou cancelada).", "example": 201 },
+          "operacao": { "type": "string", "enum": ["CRIADA", "ATUALIZADA", "CANCELADA"], "description": "Tipo de operação realizada.", "example": "CRIADA" },
+          "mensagem": { "type": "string", "example": "Carga registrada com sucesso." }
+        }
+      },
+      "CargaCalculoResultado": {
+        "type": "object",
+        "description": "Resultado de `POST /cargas/{id}/calcular`: combina um envelope de resultado, os dados da carga e o cálculo (no formato da calculadora).",
+        "properties": {
+          "status": { "type": "integer", "example": 200 },
+          "mensagem": { "type": "string", "example": "Cálculo realizado para 1 tabela(s) vigente(s)." },
+          "sucesso": { "type": "boolean", "example": true },
+          "calculado": { "type": "boolean", "example": true },
+          "id": { "type": "integer", "description": "ID do registro de carga calculado.", "example": 1234 },
+          "numero": { "type": "string", "example": "000123" },
+          "serie": { "type": "string", "example": "1" },
+          "identificador": { "type": "string", "nullable": true, "example": "CTE-000123" },
+          "tipo": { "type": "string", "example": "Embarque" },
+          "transportador": { "type": "string", "nullable": true, "example": "Transportadora Exemplo Ltda" },
+          "cnpjTransportador": { "type": "string", "nullable": true, "example": "12345678000199" },
+          "unidade": { "type": "string", "nullable": true, "example": "Filial Exemplo SP" },
+          "cnpjUnidade": { "type": "string", "example": "98765432000155" },
+          "dataCarga": { "type": "string", "format": "date", "example": "2026-04-01" },
+          "observacao": { "type": "string", "nullable": true, "example": null },
+          "parametros": {
+            "type": "object",
+            "description": "Eco dos parâmetros usados no cálculo.",
+            "properties": {
+              "distanciaKm": { "type": "number", "example": 500 },
+              "tipoVeiculoId": { "type": "integer", "nullable": true, "example": null },
+              "numEixos": { "type": "integer", "example": 7 },
+              "tipoCargaId": { "type": "integer", "example": 5 },
+              "altoDesempenho": { "type": "boolean", "example": false },
+              "composicao": { "type": "boolean", "example": true },
+              "retornoVazio": { "type": "boolean", "example": false },
+              "dataCarga": { "type": "string", "format": "date", "example": "2026-04-01" },
+              "valorFrete": { "type": "number", "nullable": true, "example": 9500.0 },
+              "cepOrigem": { "type": "string", "nullable": true, "example": null },
+              "cepDestino": { "type": "string", "nullable": true, "example": null }
+            }
+          },
+          "tipoCargaCodigo": { "type": "string", "example": "CARGA_GERAL" },
+          "tipoCargaNome": { "type": "string", "example": "Carga Geral" },
+          "numEixos": { "type": "integer", "example": 7 },
+          "tipoVeiculoDescricao": { "type": "string", "example": "Bitrem / Romeu e Julieta" },
+          "calculadoEm": { "type": "string", "format": "date-time", "example": "2026-05-24T18:30:00Z" },
+          "cacheHit": { "type": "boolean", "example": false },
+          "tabelas": {
+            "type": "array",
+            "description": "Tabelas ANTT vigentes na `dataCarga`, no mesmo formato da calculadora.",
+            "items": { "$ref": "#/components/schemas/Tabela" }
+          },
+          "avisos": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "ErroApiPublica": {
+        "type": "object",
+        "properties": {
+          "correlationId": { "type": "string", "nullable": true, "description": "ID de correlação da requisição, quando disponível.", "example": null },
+          "erro": { "type": "string", "description": "Código do erro (ex.: `VALIDATION_ERROR`).", "example": "VALIDATION_ERROR" },
+          "erros": { "type": "array", "description": "Lista de erros de validação, um por campo inválido.", "items": { "type": "string" }, "example": ["kmTotal: must not be null"] },
+          "mensagem": { "type": "string", "description": "Descrição do erro em linguagem clara.", "example": "Campos inválidos: {kmTotal=must not be null}" },
+          "status": { "type": "integer", "description": "Código de status HTTP.", "example": 400 },
+          "timestamp": { "type": "string", "format": "date-time", "example": "2026-05-24T18:30:00Z" }
+        }
+      },
+      "ErroSimples": {
+        "type": "object",
+        "description": "Erro simples (ex.: recurso não encontrado), com apenas `status` e `mensagem`.",
+        "properties": {
+          "status": { "type": "integer", "description": "Código de status HTTP.", "example": 404 },
+          "mensagem": { "type": "string", "description": "Descrição do erro em linguagem clara.", "example": "Carga não encontrada" }
+        }
       }
     }
   }

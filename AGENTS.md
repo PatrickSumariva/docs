@@ -22,10 +22,12 @@
 {/* Add any project-specific style rules below */}
 
 - Use active voice and second person ("you")
-- Keep sentences concise — one idea per sentence
+- Keep sentences concise: one idea per sentence
 - Use sentence case for headings
 - Bold for UI elements: Click **Settings**
 - Code formatting for file names, commands, paths, and code references
+- Do not use the em dash (—); it is uncommon in Brazilian Portuguese. Prefer a comma, colon, or parentheses (or split into two sentences)
+- Escape currency dollar signs in prose as `R\$`. An unescaped `$` is parsed as KaTeX math, and a pair of `$` on the same line turns all the text between them into a broken formula
 
 ## Content boundaries
 

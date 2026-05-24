@@ -9,42 +9,97 @@ Respostas para dúvidas comuns sobre o uso da calcANTT, interpretação de cálc
   <Accordion title="O que é a tabela ANTT e por que ela importa?">
     A ANTT (Agência Nacional de Transportes Terrestres) é o regulador federal de transporte terrestre do Brasil. Ela publica uma tabela de piso de frete obrigatório que define preços mínimos para o transporte rodoviário de cargas em todo o país. Contratos de frete com valores abaixo desses mínimos são ilegais segundo a legislação brasileira.
 
-    A calcANTT mantém a tabela ANTT atualizada e a aplica automaticamente em cada cálculo. Isso significa que você pode verificar se qualquer `valorFrete` declarado (valor do frete) atende ao mínimo legal antes de assinar um contrato ou auditar os existentes — protegendo sua empresa de multas e riscos de conformidade.
+    A calcANTT mantém a tabela ANTT atualizada e a aplica automaticamente em cada cálculo. Isso significa que você pode verificar se qualquer `valorFrete` declarado (valor do frete) atende ao mínimo legal antes de assinar um contrato ou auditar os existentes, protegendo sua empresa de multas e riscos de conformidade.
   </Accordion>
 
   <Accordion title="Quais tipos de veículo a calcANTT suporta?">
-    A calcANTT suporta todas as nove categorias de veículos definidas na tabela ANTT:
+    A calcANTT suporta as configurações de veículo da tabela ANTT, identificadas pelo número de eixos:
 
-    | Código | Descrição |
+    | `numEixos` | Classificação do veículo |
     | --- | --- |
-    | `CAMINHAO_LEVE` | Caminhão Leve |
-    | `CAMINHAO_TOCO` | Caminhão Toco |
-    | `CAMINHAO_TRUCK` | Caminhão Truck |
-    | `TRUCK_3_EIXOS` | Truck 3 Eixos |
-    | `CARRETA_4_EIXOS` | Carreta 4 Eixos |
-    | `CARRETA_5_EIXOS` | Carreta 5 Eixos |
-    | `CARRETA_6_EIXOS` | Carreta 6 Eixos |
-    | `BITREM_7_EIXOS` | Bitrem 7 Eixos |
-    | `RODOTREM_9_EIXOS` | Rodotrem 9 Eixos |
+    | `2` | Veículo leve / VUC |
+    | `3` | Toco |
+    | `4` | Truck |
+    | `5` | Carreta Simples |
+    | `6` | Carreta Trucada |
+    | `7` | Bitrem / Romeu e Julieta |
+    | `9` | Rodotrem |
 
     Selecione o tipo de veículo que corresponde à configuração do caminhão usado na operação de frete. O número de eixos afeta diretamente a taxa mínima aplicada.
   </Accordion>
 
-  <Accordion title="Quais tipos de carroceria e carga são suportados?">
-    A calcANTT suporta todos os oito tipos de carroceria definidos na tabela ANTT:
+  <Accordion title="Quantos eixos devo informar no cálculo?">
+    Informe em `numEixos` o número total de eixos da composição que vai transportar a carga.
 
-    | Código | Descrição |
-    | --- | --- |
-    | `GRANELEIRO` | Graneleiro |
-    | `FRIGORIFICO` | Frigorífico |
-    | `PORTA_CONTAINER` | Porta Container |
-    | `SIDER` | Sider |
-    | `BAU` | Baú |
-    | `TANQUE` | Tanque |
-    | `PLATAFORMA` | Plataforma |
-    | `CARGA_GERAL` | Carga Geral |
+    **Eixos suspensos contam.** Considere todos os eixos do veículo, suspensos ou não, conforme o § 1º do art. 4º da Resolução ANTT nº 5.867/2020: a política considera a totalidade de eixos da composição usada na operação de transporte.
+
+    **Número de eixos não previsto na tabela.** Se a combinação tiver uma quantidade de eixos que não consta na Resolução ANTT nº 5.867/2020, o piso é calculado pela quantidade de eixos **imediatamente inferior** e, na ausência dessa referência, pela **imediatamente superior**. Por isso você pode informar valores fora da lista padrão (por exemplo, `numEixos: 12`): o cálculo aplica essa regra de aproximação automaticamente.
+  </Accordion>
+
+  <Accordion title="Quais tipos de carga são suportados?">
+    A calcANTT suporta os tipos de carga definidos na tabela ANTT:
+
+    | `tipoCargaId` | Código | Tipo de carga |
+    | --- | --- | --- |
+    | `1` | `GRANEL_SOLIDO` | Granel sólido |
+    | `2` | `GRANEL_LIQUIDO` | Granel líquido |
+    | `3` | `FRIGORIFICADA_OU_AQUECIDA` | Frigorificada ou Aquecida |
+    | `4` | `CONTEINERIZADA` | Conteinerizada |
+    | `5` | `CARGA_GERAL` | Carga Geral |
+    | `6` | `NEOGRANEL` | Neogranel |
+    | `7` | `PERIGOSA_GRANEL_SOLIDO` | Perigosa (granel sólido) |
+    | `8` | `PERIGOSA_GRANEL_LIQUIDO` | Perigosa (granel líquido) |
+    | `9` | `PERIGOSA_FRIGORIFICADA_OU_AQUECIDA` | Perigosa (frigorificada ou aquecida) |
+    | `10` | `PERIGOSA_CONTEINERIZADA` | Perigosa (conteinerizada) |
+    | `11` | `PERIGOSA_CARGA_GERAL` | Perigosa (carga geral) |
+    | `12` | `GRANEL_PRESSURIZADA` | Carga Granel Pressurizada |
 
     O tipo de carga afeta quais multiplicadores e componentes de taxa se aplicam ao cálculo. Se não tiver certeza sobre qual tipo selecionar, consulte o documento de transporte (CT-e) ou a sua equipe de operações.
+  </Accordion>
+
+  <Accordion title="O que é uma operação de transporte de alto desempenho?">
+    A operação de transporte de alto desempenho é uma modalidade definida pela ANTT (inciso XVI do art. 2º) que possui um piso de frete próprio, em geral menor que o da operação comum. Na calcANTT, ela é acionada pelo parâmetro `altoDesempenho: true` (ou pela opção **Alto Desempenho** na calculadora), e só deve ser usada quando a operação atende a **todos** os critérios abaixo.
+
+    Pela definição da ANTT, a operação de alto desempenho:
+
+    - É especificada em contrato e usa frotas dedicadas ou fidelizadas.
+    - Transporta as cargas definidas nos incisos I a XII (os tipos de carga da tabela).
+    - Ocorre em 2 ou 3 turnos, respeitadas as legislações trabalhista e de trânsito.
+    - Tem tempo total de carga e descarga de até 3 horas.
+    - Tem o contratante como responsável tanto pelo carregamento quanto pelo descarregamento da carga.
+
+    **Por que o piso costuma ser menor:** no cálculo, o custo de diárias da operação de alto desempenho considera somente refeições, sem o componente de pernoite que incide na operação comum.
+
+    <Warning>
+      Use `altoDesempenho: true` apenas quando a operação realmente se enquadrar nesse conceito. O contratante deve guardar os registros e documentos das operações de carga e descarga por **5 anos**, contados do encerramento da operação, para fins de fiscalização.
+
+      Contratar uma operação como alto desempenho sem comprovar que ela atende ao conceito sujeita o contratante a multa de **duas vezes a diferença** entre o valor pago e o piso devido, limitada ao mínimo de R\$ 550,00 e ao máximo de R\$ 10.500,00.
+    </Warning>
+  </Accordion>
+
+  <Accordion title="O que é uma composição?">
+    Pela ANTT (inciso XIII do art. 2º), composição veicular é o conjunto formado pelo veículo automotor de carga e um ou mais implementos rodoviários (reboques ou semirreboques). São exemplos a carreta (cavalo mecânico mais semirreboque), o bitrem, o rodotrem e o Romeu e Julieta. Na calcANTT, a composição é acionada pelo parâmetro `composicao: true` (ou pela opção **Composição** na calculadora) e aplica uma tabela de piso própria.
+
+    <Note>
+      Atenção ao caso menos óbvio: veículos simples que não permitem desacoplar o implemento (a carroceria ou unidade de carga é fixa, presa ao veículo) também são considerados composição. Nesses casos, marque `composicao: true` mesmo que o veículo tenha uma única unidade.
+    </Note>
+
+    Marcar essa opção incorretamente altera o piso calculado, então confirme a configuração do veículo antes de calcular.
+  </Accordion>
+
+  <Accordion title="O que é o retorno vazio?">
+    Retorno vazio é o pagamento adicional pela viagem de volta do veículo sem carga. Na calcANTT, ele é incluído pelo parâmetro `retornoVazio: true` (ou pela opção **Retorno vazio** na calculadora): quando ativado, o valor é calculado em `valorRetornoVazio` e somado ao frete de ida para compor o `valorTotal`.
+
+    **Quando é obrigatório** (§ 4º do art. 3º da Resolução):
+
+    - No transporte de **contêineres**.
+    - Em **veículos de frotas específicas, dedicadas ou fidelizadas** por razões sanitárias, ou submetidos a certificações que delimitem o tipo de produto que pode ser transportado.
+
+    **Como é calculado** (§ 6º do art. 5º): o retorno vazio obrigatório corresponde a **92% do coeficiente de custo de deslocamento (CCD)** da composição veicular utilizada, multiplicado pela distância de retorno fixada em contrato.
+
+    <Note>
+      O fator de 92% vem da diferença média de custo entre o veículo carregado e descarregado, considerando a velocidade e o rendimento de consumo de combustível em cada situação.
+    </Note>
   </Accordion>
 
   <Accordion title="Por que meu cálculo retorna múltiplas tabelas?">
@@ -56,7 +111,7 @@ Respostas para dúvidas comuns sobre o uso da calcANTT, interpretação de cálc
   </Accordion>
 
   <Accordion title="O que significa cacheHit: true na resposta da API?">
-    A calcANTT armazena resultados de cálculos em cache no Redis. Quando você envia uma requisição com parâmetros idênticos — mesmo tipo de veículo, tipo de carga, distância e data — a uma requisição anterior recente, o sistema serve o resultado diretamente do cache em vez de recalcular do zero.
+    A calcANTT armazena resultados de cálculos em cache no Redis. Quando você envia uma requisição com parâmetros idênticos (mesmo tipo de veículo, tipo de carga, distância e data) a uma requisição anterior recente, o sistema serve o resultado diretamente do cache em vez de recalcular do zero.
 
     Uma resposta em cache é indicada por `"cacheHit": true` no corpo da resposta. O resultado é **idêntico** a um cálculo recém-executado; nada é aproximado ou estimado. Resultados em cache respondem mais rápido, mas ainda contam para as cotas mensais de cálculo e requisições.
 
@@ -68,7 +123,7 @@ Respostas para dúvidas comuns sobre o uso da calcANTT, interpretação de cálc
     }
     ```
 
-    Se precisar forçar um novo cálculo — por exemplo, após uma atualização de tabela — entre em contato com o suporte para limpar o cache para os seus parâmetros específicos.
+    Se precisar forçar um novo cálculo (por exemplo, após uma atualização de tabela), entre em contato com o suporte para limpar o cache para os seus parâmetros específicos.
   </Accordion>
 
   <Accordion title="O que significa valorAtendido?">
@@ -92,11 +147,11 @@ Respostas para dúvidas comuns sobre o uso da calcANTT, interpretação de cálc
 
     Você tem duas opções para restaurar o acesso antes da renovação do ciclo:
 
-    1. **Adquira um add-on** — em **Configurações → Plano**, solicite um add-on `REQUISICOES`, `CALCULOS` ou `IMPORTACAO` para aumentar a cota específica que você esgotou.
-    2. **Aguarde o próximo ciclo de faturamento** — seus contadores são resetados automaticamente no início do próximo período. Você pode ver quantos dias faltam em `diasRestantesCiclo` na página do Plano.
+    1. **Adquira um add-on**: em **Configurações → Plano**, solicite um add-on `REQUISICOES`, `CALCULOS` ou `IMPORTACAO` para aumentar a cota específica que você esgotou.
+    2. **Aguarde o próximo ciclo de faturamento**: seus contadores são resetados automaticamente no início do próximo período. Você pode ver quantos dias faltam em `diasRestantesCiclo` na página do Plano.
 
     <Warning>
-      Os limites são aplicados em tempo real. Requisições enviadas após o limite ser atingido não são enfileiradas — elas falham imediatamente e devem ser reenviadas quando a cota estiver disponível.
+      Os limites são aplicados em tempo real. Requisições enviadas após o limite ser atingido não são enfileiradas, elas falham imediatamente e devem ser reenviadas quando a cota estiver disponível.
     </Warning>
   </Accordion>
 
@@ -105,7 +160,7 @@ Respostas para dúvidas comuns sobre o uso da calcANTT, interpretação de cálc
 
     Para restaurar o acesso à API:
 
-    1. Acesse **Integrações → Chave de API & Marketplace**.
+    1. Acesse **Integrações → API & Marketplace**.
     2. Clique em **Nova chave de API** para gerar uma substituta.
     3. Atualize todos os sistemas ou scripts que usavam a chave antiga com o novo valor.
 
@@ -117,7 +172,7 @@ Respostas para dúvidas comuns sobre o uso da calcANTT, interpretação de cálc
   </Accordion>
 
   <Accordion title="O que é o correlationId nas respostas da API?">
-    Cada requisição de API processada pela calcANTT recebe um `correlationId` único — um UUID gerado no servidor e incluído em todas as respostas, incluindo respostas de erro.
+    Cada requisição de API processada pela calcANTT recebe um `correlationId` único, um UUID gerado no servidor e incluído em todas as respostas, incluindo respostas de erro.
 
     ```json
     {
@@ -130,7 +185,7 @@ Respostas para dúvidas comuns sobre o uso da calcANTT, interpretação de cálc
     Use o `correlationId` para:
 
     - **Localizar uma requisição específica** em **Integrações → Logs** pesquisando ou filtrando pelo ID de correlação.
-    - **Contatar o suporte** — sempre inclua o `correlationId` ao reportar um resultado inesperado ou erro. Isso permite que a equipe calcANTT recupere a entrada exata do log do servidor e reproduza o problema.
+    - **Contatar o suporte**: sempre inclua o `correlationId` ao reportar um resultado inesperado ou erro. Isso permite que a equipe calcANTT recupere a entrada exata do log do servidor e reproduza o problema.
 
     O `correlationId` é a forma mais rápida de rastrear qualquer requisição de ponta a ponta.
   </Accordion>
@@ -145,7 +200,7 @@ Respostas para dúvidas comuns sobre o uso da calcANTT, interpretação de cálc
 
     Para habilitar o roteamento por CEP:
 
-    1. Acesse **Integrações → Chave de API & Marketplace**.
+    1. Acesse **Integrações → API & Marketplace**.
     2. Encontre o provedor de mapas de sua preferência e ative a integração.
     3. Insira suas credenciais de API para esse provedor.
 

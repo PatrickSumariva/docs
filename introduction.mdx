@@ -1,6 +1,6 @@
 ---
 title: "calcANTT: Plataforma de Conformidade com a Tabela ANTT de Fretes"
-description: "calcANTT — calcule os fretes mínimos da ANTT via API, calculadora web, importação em massa de cargas e integrações via webhook para ERPs e sistemas TMS."
+description: "calcANTT: calcule os fretes mínimos da ANTT via API, calculadora web, importação em massa de cargas e integrações via webhook para ERPs e sistemas TMS."
 ---
 
 A calcANTT é uma plataforma SaaS que calcula os valores mínimos de frete rodoviário do Brasil em conformidade com a tabela regulatória da ANTT (Agência Nacional de Transportes Terrestres). Seja você operador de uma transportadora, desenvolvedor de software ERP ou de um TMS (Sistema de Gestão de Transporte), a calcANTT oferece as ferramentas para garantir a conformidade com o piso de frete, automatizar cálculos em escala e auditar cada resultado por meio de logs de integração.
@@ -10,10 +10,10 @@ A calcANTT é uma plataforma SaaS que calcula os valores mínimos de frete rodov
 A tabela de frete mínimo da ANTT é atualizada periodicamente e varia conforme o tipo de veículo, tipo de carga, distância e parâmetros operacionais. Calcular esses valores manualmente é suscetível a erros e operacionalmente custoso. A calcANTT resolve isso ao:
 
 - Manter a tabela ANTT sempre atualizada e versionada, garantindo que seus cálculos reflitam a regulamentação vigente
-- Disponibilizar uma API REST para que seu ERP ou TMS calcule fretes sem intervenção humana
+- Disponibilizar uma API REST para que seu ERP ou TMS calcule fretes automaticamente, sem intervenção manual
 - Oferecer uma calculadora web para equipes operacionais que precisam de cotações rápidas e avulsas
 - Permitir a importação em massa de cargas via Excel para equipes de logística com alto volume de fretes
-- Enviar notificações via webhook para sistemas downstream quando eventos de cálculo ocorrerem
+- Enviar notificações via webhook aos seus sistemas conectados sempre que ocorrerem eventos de cálculo
 - Armazenar resultados em cache para melhor desempenho, mantendo trilhas de auditoria completas nos logs de integração
 
 ## Principais funcionalidades
@@ -46,26 +46,29 @@ A calcANTT cobre toda a gama de veículos regulamentados pela tabela ANTT. Infor
 
 | `numEixos` | Classificação do veículo |
 | --- | --- |
-| `2` | Caminhão Leve |
-| `3` | Caminhão Toco |
-| `4` | Caminhão Truck |
-| `5` | Truck 3 Eixos |
-| `6` | Carreta 4 Eixos |
-| `7` | Carreta 5 Eixos |
-| `8` | Carreta 6 Eixos |
-| `9` | Bitrem 7 Eixos / Rodotrem 9 Eixos |
+| `2` | Veículo leve / VUC |
+| `3` | Toco |
+| `4` | Truck |
+| `5` | Carreta Simples |
+| `6` | Carreta Trucada |
+| `7` | Bitrem / Romeu e Julieta |
+| `9` | Rodotrem |
 
-## Tipos de carroceria suportados
+## Tipos de carga suportados
 
-O tipo de carroceria é informado como inteiro no campo `tipoCargaId`. Utilize `GET /api/public/v1/calculadora/tipos-carga` para obter a lista atualizada. As oito classificações de carroceria definidas pela ANTT são:
+O tipo de carga é informado como inteiro no campo `tipoCargaId`. Utilize `GET /api/public/v1/calculadora/tipos-carga` para obter a lista atualizada. As classificações de carga definidas pela ANTT são:
 
-| Código | Tipo de carroceria |
-| --- | --- |
-| `GRA` | Graneleiro |
-| `FRI` | Frigorífico |
-| `PCO` | Porta Container |
-| `SID` | Sider |
-| `BAU` | Baú |
-| `TAN` | Tanque |
-| `PLA` | Plataforma |
-| `CGE` | Carga Geral |
+| `tipoCargaId` | Código | Tipo de carga |
+| --- | --- | --- |
+| `1` | `GRANEL_SOLIDO` | Granel sólido |
+| `2` | `GRANEL_LIQUIDO` | Granel líquido |
+| `3` | `FRIGORIFICADA_OU_AQUECIDA` | Frigorificada ou Aquecida |
+| `4` | `CONTEINERIZADA` | Conteinerizada |
+| `5` | `CARGA_GERAL` | Carga Geral |
+| `6` | `NEOGRANEL` | Neogranel |
+| `7` | `PERIGOSA_GRANEL_SOLIDO` | Perigosa (granel sólido) |
+| `8` | `PERIGOSA_GRANEL_LIQUIDO` | Perigosa (granel líquido) |
+| `9` | `PERIGOSA_FRIGORIFICADA_OU_AQUECIDA` | Perigosa (frigorificada ou aquecida) |
+| `10` | `PERIGOSA_CONTEINERIZADA` | Perigosa (conteinerizada) |
+| `11` | `PERIGOSA_CARGA_GERAL` | Perigosa (carga geral) |
+| `12` | `GRANEL_PRESSURIZADA` | Carga Granel Pressurizada |

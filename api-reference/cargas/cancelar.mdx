@@ -1,0 +1,11 @@
+---
+title: "Cancelar carga"
+sidebarTitle: "Cancelar carga"
+openapi: "/api-reference/openapi.json POST /cargas/{id}/cancelar"
+---
+
+Cancela **definitivamente** um registro de carga, definindo `situacao` como `CANCELADO`.
+
+<Warning>
+  O cancelamento é irreversível. A combinação `numero` + `serie` + `cnpjUnidade` não pode ser reutilizada. Para reprocessar um embarque, crie um novo registro com um número diferente.
+</Warning>

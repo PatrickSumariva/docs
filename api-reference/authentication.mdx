@@ -1,5 +1,6 @@
 ---
-title: "Autentique requisições na API pública da calcANTT"
+title: "Autenticação API REST"
+sidebarTitle: "Autenticação API REST"
 description: "Gere uma chave de API com escopo na calcANTT, passe-a como token Bearer em cada requisição e trate corretamente os erros de autenticação 401, 403 e 429."
 ---
 
@@ -8,8 +9,8 @@ A calcANTT autentica todas as requisições da API pública usando chaves de API
 ## Gere uma chave de API
 
 <Steps>
-  <Step title="Abra Chave de API & Marketplace">
-    No painel da calcANTT, navegue até **Integrações → Chave de API & Marketplace**.
+  <Step title="Abra API & Marketplace">
+    No painel da calcANTT, navegue até **Integrações → API & Marketplace**.
   </Step>
   <Step title="Crie uma nova chave">
     Clique em **Nova Chave de API** e preencha:
@@ -24,7 +25,7 @@ A calcANTT autentica todas as requisições da API pública usando chaves de API
 </Steps>
 
 <Warning>
-  Nunca inclua sua chave de API no controle de versão nem a exponha em código client-side. Se uma chave for comprometida, revogue-a imediatamente em **Integrações → Chave de API & Marketplace** e crie uma nova ou **rotacione** a chave atual.
+  Nunca inclua sua chave de API no controle de versão nem a exponha em código que roda no navegador. Se uma chave for comprometida, revogue-a imediatamente em **Integrações → API & Marketplace** e crie uma nova ou **rotacione** a chave atual.
 </Warning>
 
 ## Formato da chave

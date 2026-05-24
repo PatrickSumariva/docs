@@ -1,0 +1,61 @@
+---
+title: "Visão geral das integrações"
+sidebarTitle: "Visão geral das integrações"
+description: "Conheça as quatro formas de integrar com a calcANTT (API REST, Webhooks, integração nativa Lincros e cálculo de KM por rota) e quando usar cada uma."
+---
+
+A calcANTT oferece quatro famílias de integração, que podem ser combinadas conforme a sua operação. A diferença principal entre elas é **quem inicia a comunicação** e **em que direção os dados fluem**. Esta página ajuda você a escolher o caminho certo antes de entrar na documentação detalhada de cada um.
+
+## Comparativo rápido
+
+| Integração | Quem inicia | Direção | Autenticação | Quando usar |
+| --- | --- | --- | --- | --- |
+| **API REST** | Você (sob demanda) | Seu sistema → calcANTT | Chave de API (`Bearer calt_***`) | Calcular fretes e gerenciar cargas a partir do seu ERP/TMS |
+| **Webhooks** | calcANTT (por evento) | calcANTT → seu sistema | HMAC-SHA256, cabeçalho personalizado ou nenhuma | Ser avisado em tempo real quando algo acontece, sem ficar consultando a API |
+| **Nativa: Lincros** | calcANTT (verificação periódica) | calcANTT ↔ Lincros | Token Bearer do TMS Lincros | Calcular automaticamente cada embarque do Lincros, sem cadastro manual |
+| **Cálculo de KM** | calcANTT (durante o cálculo) | calcANTT → provedor de mapas | Chave do provedor mantida pela calcANTT | Obter a distância da rota por CEP em vez de digitar os quilômetros |
+
+<Info>
+  As quatro integrações se complementam. Uma mesma empresa pode, por exemplo, ter o **Lincros** sincronizando embarques, o **HERE** resolvendo a distância por CEP, um **webhook** avisando o ERP sempre que uma carga é calculada e uma **chave de API** para o ERP buscar os detalhes em seguida.
+</Info>
+
+## As quatro famílias
+
+<CardGroup cols={2}>
+  <Card title="API REST" icon="code" href="/api-reference/overview">
+    API pública e versionada (`/api/public/v1`). Seu sistema chama a calcANTT para calcular fretes, criar e consultar cargas. Autenticada por chave de API.
+  </Card>
+
+  <Card title="Webhooks" icon="webhook" href="/api-reference/webhooks">
+    A calcANTT envia uma requisição `POST` para a sua URL sempre que um evento relevante acontece: carga calculada, chave de API alterada, limite atingido e outros.
+  </Card>
+
+  <Card title="Integração nativa: Lincros" icon="truck" href="/api-reference/lincros/tms">
+    Integração ponta a ponta com o TMS Lincros: a calcANTT busca os embarques pendentes, calcula o frete mínimo e devolve o resultado ao Lincros automaticamente.
+  </Card>
+
+  <Card title="Geolocalização e KM" icon="map" href="/api-reference/km/visao-geral">
+    Provedores de mapas (HERE, Google, TomTom, Mapbox) que convertem CEP em distância rodoviária para o cálculo, sem você precisar informar os quilômetros.
+  </Card>
+</CardGroup>
+
+## Como escolher
+
+<Steps>
+  <Step title="Você quer chamar a calcANTT a partir do seu sistema?">
+    Use a **API REST**. É o caminho para calcular fretes sob demanda e gerenciar cargas de forma programática.
+  </Step>
+  <Step title="Você quer ser notificado quando algo acontece na calcANTT?">
+    Use **Webhooks**. Em vez de consultar a API de tempos em tempos, você recebe um `POST` no momento do evento.
+  </Step>
+  <Step title="Você já opera no TMS Lincros?">
+    Use a **integração nativa Lincros**. Cada embarque é carregado, calculado e devolvido ao Lincros sem cadastro manual.
+  </Step>
+  <Step title="Você quer calcular por CEP em vez de digitar a distância?">
+    Ative um provedor de **Geolocalização e KM**. A calcANTT resolve a distância da rota automaticamente.
+  </Step>
+</Steps>
+
+<Note>
+  Webhooks, integração Lincros, provedores de KM e a chave de API são configurados em **Integrações → API & Marketplace**. A disponibilidade de cada uma depende do seu plano e, em alguns casos, de um add-on contratado em **Configurações → Plano**.
+</Note>

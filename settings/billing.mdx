@@ -38,7 +38,7 @@ Novas contas podem começar em um plano trial para explorar a calcANTT antes de 
 | --- | --- |
 | `trialTerminaEm` | O último dia do seu período trial (formato: `yyyy-MM-dd`). |
 | `diasRestantesTrial` | Contagem regressiva dos dias restantes no trial (inclusivo, fuso horário de São Paulo). |
-| `duracaoTrialDias` | Duração total do trial em dias — usado para renderizar a barra de progresso. |
+| `duracaoTrialDias` | Duração total do trial em dias, usado para renderizar a barra de progresso. |
 
 <Warning>
   Quando o período trial terminar, o acesso às funcionalidades pagas pode ser restrito até que você selecione um plano pago. Faça o upgrade antes de `trialTerminaEm` para evitar qualquer interrupção. A calcANTT envia notificações conforme a data de término do trial se aproxima.
@@ -91,7 +91,7 @@ Planos vinculados a um produto Stripe (`stripeProductId`) são cobrados automati
 - Baixar ou revisar o histórico de faturas.
 - Adicionar um número de Ordem de Compra (OC) às suas faturas se sua equipe financeira exigir.
 
-Para quaisquer outras solicitações de faturamento — como trocar para transferência bancária, solicitar uma cópia de uma fatura anterior ou contestar uma cobrança — entre em contato com o suporte da calcANTT e inclua o número da fatura ou o `correlationId`.
+Para quaisquer outras solicitações de faturamento (como trocar para transferência bancária, solicitar uma cópia de uma fatura anterior ou contestar uma cobrança), entre em contato com o suporte da calcANTT e inclua o número da fatura ou o `correlationId`.
 
 <Info>
   Para fazer upgrade do plano, clique em **Tenho interesse** em qualquer card de plano na seção **Planos disponíveis** de **Configurações → Plano**, ou entre em contato diretamente com a equipe calcANTT. Se sua assinatura atual é cobrada por cartão de crédito e está ativa, pode ser possível migrar de plano diretamente pela interface sem contatar o suporte.

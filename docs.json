@@ -1,75 +1,151 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "name": "calcANTT",
+  "logo": {
+    "light": "/logos/logo-horizontal-principal.svg",
+    "dark": "/logos/logo-horizontal-secundario.svg"
+  },
+  "description": "Documentação da calcANTT: calcule o frete mínimo da tabela ANTT via API REST ou pela plataforma web.",
   "theme": "almond",
   "colors": {
     "primary": "#2563eb",
-    "light": "#eff6ff",
-    "dark": "#1e3a8a"
+    "light": "#60a5fa",
+    "dark": "#1d4ed8"
   },
   "navbar": {
+    "links": [
+      {
+        "label": "Site",
+        "href": "https://calcantt.com.br"
+      }
+    ],
     "primary": {
-      "type": "github",
-      "href": "https://github.com/PatrickSumariva/antt"
+      "type": "button",
+      "label": "Acessar plataforma",
+      "href": "https://app.calcantt.com.br"
     }
   },
   "navigation": {
-    "tabs": [
+    "languages": [
       {
-        "tab": "Documentação",
-        "groups": [
+        "language": "pt-BR",
+        "default": true,
+        "tabs": [
           {
-            "group": "Primeiros Passos",
-            "pages": [
-              "introduction",
-              "quickstart",
-              "plans"
+            "tab": "Documentação",
+            "groups": [
+              {
+                "group": "Primeiros Passos",
+                "pages": [
+                  "introduction",
+                  "quickstart",
+                  "plans"
+                ]
+              },
+              {
+                "group": "Usando a Plataforma",
+                "pages": [
+                  "guides/calculator",
+                  "guides/cargo-management",
+                  "guides/antt-table",
+                  "guides/dashboard"
+                ]
+              },
+              {
+                "group": "Integrações",
+                "pages": [
+                  "integrations/api-keys",
+                  "integrations/webhooks",
+                  "integrations/marketplace",
+                  "integrations/logs"
+                ]
+              },
+              {
+                "group": "Conta e Configurações",
+                "pages": [
+                  "settings/users",
+                  "settings/billing",
+                  "settings/faq"
+                ]
+              }
             ]
           },
           {
-            "group": "Usando a Plataforma",
-            "pages": [
-              "guides/calculator",
-              "guides/cargo-management",
-              "guides/antt-table",
-              "guides/dashboard"
-            ]
-          },
-          {
-            "group": "Integrações",
-            "pages": [
-              "integrations/api-keys",
-              "integrations/webhooks",
-              "integrations/marketplace",
-              "integrations/logs"
-            ]
-          },
-          {
-            "group": "Conta e Configurações",
-            "pages": [
-              "settings/users",
-              "settings/billing",
-              "settings/faq"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Referência da API",
-        "groups": [
-          {
-            "group": "Visão Geral",
-            "pages": [
-              "api-reference/overview",
-              "api-reference/authentication"
-            ]
-          },
-          {
-            "group": "Endpoints",
-            "pages": [
-              "api-reference/calculate",
-              "api-reference/cargos",
-              "api-reference/vehicle-types"
+            "tab": "Integrações / API",
+            "groups": [
+              {
+                "group": "Comece Aqui",
+                "pages": [
+                  "api-reference/visao-geral",
+                  "api-reference/overview",
+                  "api-reference/authentication",
+                  "api-reference/calculadora-ou-cargas",
+                  "api-reference/logs"
+                ]
+              },
+              {
+                "group": "Endpoints",
+                "pages": [
+                  {
+                    "group": "Calculadora",
+                    "pages": [
+                      "api-reference/calculadora/calcular",
+                      "api-reference/calculadora/tipos-veiculo",
+                      "api-reference/calculadora/tipos-carga"
+                    ]
+                  },
+                  {
+                    "group": "Cargas",
+                    "pages": [
+                      "api-reference/cargas/criar",
+                      "api-reference/cargas/consultar",
+                      "api-reference/cargas/calcular",
+                      "api-reference/cargas/cancelar"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Webhooks",
+                "pages": [
+                  "api-reference/webhooks",
+                  {
+                    "group": "Eventos",
+                    "pages": [
+                      "api-reference/webhooks/carga-criada",
+                      "api-reference/webhooks/carga-calculada",
+                      "api-reference/webhooks/carga-editada",
+                      "api-reference/webhooks/carga-cancelada",
+                      "api-reference/webhooks/consumo-limite-atingido",
+                      "api-reference/webhooks/configuracao-webhook-alterada",
+                      "api-reference/webhooks/chave-api-alterada"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Lincros",
+                "pages": [
+                  "api-reference/lincros/tms",
+                  "api-reference/lincros/roteirizador"
+                ]
+              },
+              {
+                "group": "Geolocalização e KM",
+                "pages": [
+                  "api-reference/km/visao-geral",
+                  "api-reference/km/here",
+                  "api-reference/km/google",
+                  "api-reference/km/tomtom",
+                  "api-reference/km/mapbox"
+                ]
+              },
+              {
+                "group": "Swagger",
+                "pages": [
+                  "api-reference/swagger"
+                ]
+              }
             ]
           }
         ]

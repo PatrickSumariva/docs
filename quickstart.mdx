@@ -14,17 +14,17 @@ Este guia mostra como criar uma conta, gerar uma chave de API com a permissão c
   <Step title="Gere uma chave de API">
     As chaves de API autenticam suas requisições à API pública da calcANTT. Para criar uma:
 
-    1. Na barra lateral esquerda, vá em **Integrações → Chave de API & Marketplace**.
+    1. Na barra lateral esquerda, vá em **Integrações → API & Marketplace**.
     2. Clique em **Nova chave de API**.
     3. Dê um nome descritivo para a chave (por exemplo, `ERP produção`).
     4. Selecione o ambiente: **Produção** ou **Sandbox**.
-    5. Em **Permissões**, marque **`CALCULAR_FRETE`** — isso concede acesso aos endpoints de cálculo de frete.
+    5. Em **Permissões**, marque **`CALCULAR_FRETE`**: isso concede acesso aos endpoints de cálculo de frete.
     6. Clique em **Criar**.
 
     A chave completa (`chaveCompleta`) é exibida **apenas uma vez**. Copie-a imediatamente e armazene em um gerenciador de segredos ou variável de ambiente.
 
     <Note>
-      Sua chave de API é uma credencial secreta. Nunca a inclua no controle de versão nem a exponha em código client-side. Se uma chave for comprometida, revogue-a imediatamente em **Integrações → Chave de API & Marketplace** e gere uma substituta.
+      Sua chave de API é uma credencial secreta. Nunca a inclua no controle de versão nem a exponha em código que roda no navegador. Se uma chave for comprometida, revogue-a imediatamente em **Integrações → API & Marketplace** e gere uma substituta.
     </Note>
 
     As chaves seguem o formato `calt_<ambiente>_<token>`. O prefixo `calt_` identifica uma chave da calcANTT.
@@ -33,7 +33,7 @@ Este guia mostra como criar uma conta, gerar uma chave de API com a permissão c
     Envie uma requisição `POST` ao endpoint de cálculo. O exemplo abaixo calcula o frete mínimo para um veículo de seis eixos percorrendo 500 km, com tipo de carga ID `1`, na data `2026-05-23`:
 
     ```bash
-    curl -X POST https://your-domain/api/public/v1/calculadora/calcular \
+    curl -X POST https://app.calcantt.com.br/api/public/v1/calculadora/calcular \
       -H "Authorization: Bearer calt_sua_chave_api" \
       -H "Content-Type: application/json" \
       -d '{
@@ -47,7 +47,7 @@ Este guia mostra como criar uma conta, gerar uma chave de API com a permissão c
       }'
     ```
 
-    Substitua `https://your-domain` pela URL da sua instância da calcANTT e `calt_sua_chave_api` pela chave gerada no passo anterior.
+    Substitua `calt_sua_chave_api` pela chave de API que você gerou no passo anterior.
 
     **Referência dos campos da requisição:**
 
@@ -55,11 +55,11 @@ Este guia mostra como criar uma conta, gerar uma chave de API com a permissão c
     | --- | --- | --- |
     | `numEixos` | inteiro | Número de eixos do veículo |
     | `distanciaKm` | número | Distância da rota em quilômetros. Use `0` para calcular por CEP de origem/destino |
-    | `tipoCargaId` | inteiro | ID do tipo de carga — obtenha os IDs válidos em `GET /api/public/v1/calculadora/tipos-carga` |
+    | `tipoCargaId` | inteiro | ID do tipo de carga, obtenha os IDs válidos em `GET /api/public/v1/calculadora/tipos-carga` |
     | `altoDesempenho` | booleano | `true` para veículos de alto desempenho (PBT/PBTC) |
     | `composicao` | booleano | `true` para conjuntos de veículos em composição |
     | `retornoVazio` | booleano | `true` para incluir o adicional de retorno em vazio |
-    | `dataCarga` | string | Data da carga no formato `yyyy-MM-dd` — determina a versão da tabela ANTT aplicável |
+    | `dataCarga` | string | Data da carga no formato `yyyy-MM-dd`: determina a versão da tabela ANTT aplicável |
     | `cepOrigem` | string | CEP de origem (opcional, usado quando `distanciaKm` é `0`) |
     | `cepDestino` | string | CEP de destino (opcional, usado quando `distanciaKm` é `0`) |
   </Step>
@@ -77,10 +77,10 @@ Este guia mostra como criar uma conta, gerar uma chave de API com a permissão c
         "retornoVazio": false,
         "dataCarga": "2026-05-23"
       },
-      "tipoCargaCodigo": "GR",
-      "tipoCargaNome": "Graneleiro",
+      "tipoCargaCodigo": "GRANEL_SOLIDO",
+      "tipoCargaNome": "Granel sólido",
       "numEixos": 6,
-      "tipoVeiculoDescricao": "Carreta 6 Eixos",
+      "tipoVeiculoDescricao": "Carreta Trucada",
       "calculadoEm": "2026-05-23T14:32:00Z",
       "cacheHit": false,
       "avisos": [],
@@ -90,7 +90,7 @@ Este guia mostra como criar uma conta, gerar uma chave de API com a permissão c
           "tabelaCodigo": "ANTT-2026-Q1",
           "tabelaNome": "Tabela ANTT Q1 2026",
           "numEixos": 6,
-          "tipoVeiculoDescricao": "Carreta 6 Eixos",
+          "tipoVeiculoDescricao": "Carreta Trucada",
           "subtotalIda": 3250.00,
           "valorRetornoVazio": 0.00,
           "valorTotal": 3250.00,
@@ -130,13 +130,13 @@ Este guia mostra como criar uma conta, gerar uma chave de API com a permissão c
     | Campo | Descrição |
     | --- | --- |
     | `parametros` | Eco dos parâmetros de entrada usados no cálculo |
-    | `tabelas` | Array de resultados — uma entrada por versão da tabela ANTT ativa na `dataCarga` |
+    | `tabelas` | Array de resultados, uma entrada por versão da tabela ANTT ativa na `dataCarga` |
     | `tabelas[].subtotalIda` | Total da ida antes do adicional de retorno em vazio |
     | `tabelas[].valorRetornoVazio` | Adicional de retorno em vazio (zero quando `retornoVazio` é `false`) |
     | `tabelas[].valorTotal` | Frete mínimo final para esta versão da tabela |
     | `tabelas[].componentes` | Componentes de custo detalhados com tarifa, unidade, valor e fórmula |
     | `calculadoEm` | Timestamp ISO 8601 de quando o cálculo foi realizado |
-    | `cacheHit` | `true` se o resultado foi servido do cache em vez de recalculado |
+    | `cacheHit` | `true` se o resultado veio do cache, em vez de ter sido recalculado |
     | `avisos` | Avisos não bloqueantes, por exemplo quando parâmetros estão fora dos intervalos normais |
 
     <Tip>
