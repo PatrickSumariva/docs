@@ -13,7 +13,8 @@ Cada tabela ANTT na plataforma é armazenada como um registro `TabelaAntt` com o
 
 | Campo | Descrição |
 | --- | --- |
-| `codigo` | Identificador curto da versão da tabela (ex.: `ANTT-2024-1`). |
+| `codigo` | Identificador numérico da tabela na plataforma, exibido com o prefixo `#` (ex.: `#1234`). |
+| `categoria` | Categoria regulatória da ANTT à qual a tabela pertence: `A`, `B`, `C` ou `D`. Cada letra agrupa uma combinação específica de tipo de operação e veículo definida na Resolução ANTT nº 5.867/2020. |
 | `nome` | Nome legível exibido em toda a interface. |
 | `vigenciaInicio` | Data de início do período de vigência da tabela (`yyyy-MM-dd`). |
 | `vigenciaFim` | Data de fim da vigência (`yyyy-MM-dd`), ou `null` se a tabela ainda estiver em vigor sem expiração definida. |
@@ -36,7 +37,7 @@ Cada tabela ANTT na plataforma é armazenada como um registro `TabelaAntt` com o
     A tabela foi desativada manualmente e é excluída dos cálculos independentemente das datas.
   </Card>
 
-  <Card title="EXPIRADA" icon="calendar-x">
+  <Card title="EXPIRADA" icon="calendar-xmark">
     O `vigenciaFim` passou. A tabela permanece acessível para consultas históricas, mas não é mais selecionada para novos cálculos.
   </Card>
 </CardGroup>
@@ -58,7 +59,7 @@ Quando você executa um cálculo, o motor resolve cada `ItemTabela` corresponden
 
 | Campo | Descrição |
 | --- | --- |
-| `codigo` | Código do componente (ex.: `CCD`, `GRIS`, `ADEME`). |
+| `codigo` | Código do componente (`CCD`, `CC` ou `RETORNO_VAZIO`). |
 | `nome` | Nome do componente exibido nos resultados. |
 | `unidade` | `POR_KM`, `FIXO` ou `PERCENTUAL`. |
 | `tarifa` | A taxa unitária extraída da tabela ANTT para o `numEixos` selecionado. |
@@ -95,6 +96,6 @@ Os resultados podem incluir mais de uma tabela correspondente, por exemplo, quan
   Sempre verifique a `dataCarga` antes de executar um cálculo. Inserir a data errada faz o motor selecionar uma tabela de um período regulatório diferente, produzindo um valor mínimo que não reflete as taxas legalmente em vigor na data real do embarque.
 </Tip>
 
-## Visualizador público da tabela de fretes
+## Visualizador da tabela de fretes
 
-A tabela de fretes ANTT atual pode ser visualizada publicamente em `/calculadora/tabela-frete`, sem necessidade de login. Use esta página para compartilhar as tarifas oficiais com transportadoras, auditores ou clientes sem conceder a eles acesso total à sua conta calcANTT.
+Dentro da plataforma (após o login), você pode consultar as tabelas ANTT vigentes em **Tabela de fretes**. A página lista as tarifas oficiais por padrão, tipo de carga e número de eixos, e permite **exportar a tabela em formato Excel** para compartilhar com transportadoras, auditores ou clientes, ou para análises offline.

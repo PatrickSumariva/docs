@@ -14,27 +14,26 @@ Este guia mostra como criar uma conta, gerar uma chave de API com a permissão c
   <Step title="Gere uma chave de API">
     As chaves de API autenticam suas requisições à API pública da calcANTT. Para criar uma:
 
-    1. Na barra lateral esquerda, vá em **Integrações → API & Marketplace**.
+    1. No menu superior, vá em **Integrações → API & Marketplace**.
     2. Clique em **Nova chave de API**.
     3. Dê um nome descritivo para a chave (por exemplo, `ERP produção`).
-    4. Selecione o ambiente: **Produção** ou **Sandbox**.
-    5. Em **Permissões**, marque **`CALCULAR_FRETE`**: isso concede acesso aos endpoints de cálculo de frete.
-    6. Clique em **Criar**.
+    4. Em **Permissões**, marque **`CALCULAR_FRETE`**: isso concede acesso aos endpoints de cálculo de frete.
+    5. Clique em **Criar**.
 
     A chave completa (`chaveCompleta`) é exibida **apenas uma vez**. Copie-a imediatamente e armazene em um gerenciador de segredos ou variável de ambiente.
 
     <Note>
-      Sua chave de API é uma credencial secreta. Nunca a inclua no controle de versão nem a exponha em código que roda no navegador. Se uma chave for comprometida, revogue-a imediatamente em **Integrações → API & Marketplace** e gere uma substituta.
+      Sua chave de API é uma credencial secreta. Nunca a inclua no controle de versão nem a exponha em código que roda no navegador. Se uma chave for comprometida, acesse **Integrações → API & Marketplace** e **rotacione** a chave (ou revogue-a e gere uma nova).
     </Note>
 
-    As chaves seguem o formato `calt_<ambiente>_<token>`. O prefixo `calt_` identifica uma chave da calcANTT.
+    As chaves seguem o formato `calt_live_<token>`. O prefixo `calt_` identifica uma chave da calcANTT.
   </Step>
   <Step title="Faça seu primeiro cálculo de frete">
     Envie uma requisição `POST` ao endpoint de cálculo. O exemplo abaixo calcula o frete mínimo para um veículo de seis eixos percorrendo 500 km, com tipo de carga ID `1`, na data `2026-05-23`:
 
     ```bash
     curl -X POST https://app.calcantt.com.br/api/public/v1/calculadora/calcular \
-      -H "Authorization: Bearer calt_sua_chave_api" \
+      -H "Authorization: Bearer calt_live_sua_chave_api" \
       -H "Content-Type: application/json" \
       -d '{
         "numEixos": 6,
@@ -47,7 +46,7 @@ Este guia mostra como criar uma conta, gerar uma chave de API com a permissão c
       }'
     ```
 
-    Substitua `calt_sua_chave_api` pela chave de API que você gerou no passo anterior.
+    Substitua `calt_live_sua_chave_api` pela chave de API que você gerou no passo anterior.
 
     **Referência dos campos da requisição:**
 
@@ -68,14 +67,21 @@ Este guia mostra como criar uma conta, gerar uma chave de API com a permissão c
 
     ```json
     {
+      "sucesso": true,
+      "calculado": true,
+      "mensagem": "Cálculo realizado para 1 tabela(s) vigente(s).",
       "parametros": {
-        "numEixos": 6,
         "distanciaKm": 500,
+        "tipoVeiculoId": null,
+        "numEixos": 6,
         "tipoCargaId": 1,
         "altoDesempenho": false,
         "composicao": false,
         "retornoVazio": false,
-        "dataCarga": "2026-05-23"
+        "dataCarga": "2026-05-23",
+        "valorFrete": null,
+        "cepOrigem": null,
+        "cepDestino": null
       },
       "tipoCargaCodigo": "GRANEL_SOLIDO",
       "tipoCargaNome": "Granel sólido",
@@ -83,58 +89,74 @@ Este guia mostra como criar uma conta, gerar uma chave de API com a permissão c
       "tipoVeiculoDescricao": "Carreta Trucada",
       "calculadoEm": "2026-05-23T14:32:00Z",
       "cacheHit": false,
-      "avisos": [],
       "tabelas": [
         {
-          "tabelaUuid": "a1b2c3d4-...",
-          "tabelaCodigo": "ANTT-2026-Q1",
-          "tabelaNome": "Tabela ANTT Q1 2026",
+          "tabelaId": 1,
+          "tabelaCodigo": "A",
+          "tabelaNome": "TRANSPORTE RODOVIÁRIO DE CARGA LOTAÇÃO EM OPERAÇÕES COMUNS",
+          "padraoCodigo": "A",
+          "padraoNome": "Padrão A",
+          "altoDesempenho": false,
+          "composicao": false,
+          "menorValor": true,
+          "valorAtendido": null,
+          "tipoCargaId": 1,
+          "tipoCargaCodigo": "GRANEL_SOLIDO",
+          "tipoCargaNome": "Granel sólido",
           "numEixos": 6,
           "tipoVeiculoDescricao": "Carreta Trucada",
-          "subtotalIda": 3250.00,
-          "valorRetornoVazio": 0.00,
-          "valorTotal": 3250.00,
           "componentes": [
             {
               "codigo": "CCD",
-              "nome": "Custo de Capital e Depreciação",
+              "nome": "Deslocamento",
               "unidade": "POR_KM",
-              "tarifa": 2.15,
-              "valor": 1075.00,
-              "formula": "tarifa × distanciaKm"
+              "tarifa": 4.523,
+              "valor": 2261.50,
+              "numEixosUsado": 6,
+              "formula": "500 km × R$ 4,523/km"
             },
             {
-              "codigo": "CF",
-              "nome": "Custo de Combustível",
-              "unidade": "POR_KM",
-              "tarifa": 3.55,
-              "valor": 1775.00,
-              "formula": "tarifa × distanciaKm"
-            },
-            {
-              "codigo": "PEDAGIO",
-              "nome": "Pedágio",
+              "codigo": "CC",
+              "nome": "Carga e Descarga",
               "unidade": "FIXO",
-              "tarifa": 400.00,
-              "valor": 400.00,
-              "formula": "tarifa"
+              "tarifa": 142.18,
+              "valor": 142.18,
+              "numEixosUsado": 6,
+              "formula": "Valor fixo da tabela"
             }
-          ]
+          ],
+          "subtotalIda": 2403.68,
+          "valorRetornoVazio": 0.00,
+          "valorTotal": 2403.68,
+          "detalhesOperacao": "Operação comum: 500 km × CCD (R$ 4,523/km) + CC (R$ 142,18 fixo)."
         }
-      ]
+      ],
+      "avisos": []
     }
     ```
+
+    <Note>
+      Os valores acima são ilustrativos. Os números reais dependem da tabela ANTT vigente na `dataCarga` informada.
+    </Note>
 
     **Principais campos da resposta:**
 
     | Campo | Descrição |
     | --- | --- |
+    | `sucesso` | `true` quando a requisição foi processada com sucesso |
+    | `calculado` | `true` quando ao menos uma tabela vigente foi calculada |
+    | `mensagem` | Resumo legível do resultado |
     | `parametros` | Eco dos parâmetros de entrada usados no cálculo |
-    | `tabelas` | Array de resultados, uma entrada por versão da tabela ANTT ativa na `dataCarga` |
-    | `tabelas[].subtotalIda` | Total da ida antes do adicional de retorno em vazio |
-    | `tabelas[].valorRetornoVazio` | Adicional de retorno em vazio (zero quando `retornoVazio` é `false`) |
-    | `tabelas[].valorTotal` | Frete mínimo final para esta versão da tabela |
-    | `tabelas[].componentes` | Componentes de custo detalhados com tarifa, unidade, valor e fórmula |
+    | `tabelas` | Array de resultados, uma entrada por tabela ANTT vigente na `dataCarga` |
+    | `tabelas[].tabelaCodigo` / `tabelaNome` | Identificação da tabela ANTT aplicada |
+    | `tabelas[].padraoCodigo` / `padraoNome` | Padrão tarifário da tabela |
+    | `tabelas[].menorValor` | `true` na tabela de menor `valorTotal` entre as retornadas |
+    | `tabelas[].valorAtendido` | `true`/`false` se o `valorFrete` informado atende ao piso; `null` quando `valorFrete` não foi enviado |
+    | `tabelas[].componentes` | Componentes de custo detalhados com `tarifa`, `unidade`, `valor`, `numEixosUsado` e `formula` |
+    | `tabelas[].subtotalIda` | Total da ida (soma dos componentes de ida) |
+    | `tabelas[].valorRetornoVazio` | Adicional de retorno em vazio (`0` quando `retornoVazio` é `false`) |
+    | `tabelas[].valorTotal` | Frete mínimo final para esta tabela: `subtotalIda + valorRetornoVazio` |
+    | `tabelas[].detalhesOperacao` | Memória de cálculo legível: operação, distância, coeficientes e fórmulas |
     | `calculadoEm` | Timestamp ISO 8601 de quando o cálculo foi realizado |
     | `cacheHit` | `true` se o resultado veio do cache, em vez de ter sido recalculado |
     | `avisos` | Avisos não bloqueantes, por exemplo quando parâmetros estão fora dos intervalos normais |

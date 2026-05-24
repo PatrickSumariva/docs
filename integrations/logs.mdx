@@ -1,45 +1,78 @@
 ---
 title: "Monitore a atividade da API com os logs de integração da calcANTT"
-description: "Use os logs de integração da calcANTT para auditar cada requisição de Chave de API, diagnosticar erros com IDs de correlação e acompanhar o consumo do plano em tempo real."
+description: "Use os logs de integração da calcANTT para auditar cada requisição feita com chave de API, acompanhar a saúde das integrações e exportar o histórico em tempo real."
 ---
 
 A calcANTT registra cada chamada de API feita com suas chaves de API nos logs de integração, dando a você visibilidade total das requisições externas. Use os logs para monitorar a saúde do uso, diagnosticar falhas e verificar se suas integrações estão se comportando conforme esperado.
 
 ## O que é registrado
 
-Cada entrada `RequestLog` captura o contexto completo de uma única requisição de cálculo:
+A página exibe um cabeçalho com **indicadores agregados**, uma **lista de requisições** recentes e um **painel de detalhes** que abre ao clicar em qualquer linha.
 
-| Campo | Descrição |
+### Indicadores de resumo
+
+Quatro cartões mostram a saúde do tráfego no período filtrado:
+
+| Indicador | Descrição |
 | --- | --- |
-| `correlationId` | Identificador único para esta requisição. Incluído em cada resposta da API. |
-| `timestamp` | Timestamp ISO 8601 de quando a requisição foi recebida. |
-| `latencyMs` | Tempo total de resposta em milissegundos. |
-| `status` | Resultado da requisição: `SUCCESS`, `VALIDATION_ERROR` ou `SYSTEM_ERROR`. |
-| `errorMessage` | Detalhes do erro quando `status` não é `SUCCESS`. `null` em requisições bem-sucedidas. |
-| `request.numEixos` | Número de eixos enviado na requisição de cálculo. |
-| `request.tipoCargaId` | ID do tipo de carga enviado na requisição de cálculo. |
-| `request.distanciaKm` | Distância em quilômetros usada para o cálculo. |
-| `request.dataCarga` | Data da carga usada para selecionar a tabela ANTT ativa. |
-| `response.valorMinimo` | Valor mínimo de frete retornado pela calcANTT. `null` em caso de erro. |
-| `response.versaoTabela` | Versão da tabela ANTT usada para este cálculo. `null` em caso de erro. |
-| `cacheStatus` | Se o resultado foi servido do cache: `HIT` ou `MISS`. |
-| `apiVersion` | Versão da API usada para a requisição. |
-| `clientPlan` | O plano associado à chave de API que fez a requisição. |
+| Total de requisições | Total de chamadas recebidas no período. |
+| Sucesso (2xx) | Quantidade de requisições com resposta HTTP `2xx`. |
+| Erros (4xx + 5xx) | Quantidade de requisições com resposta de erro (cliente ou servidor). |
+| Latência média | Tempo médio de resposta, em milissegundos, no período. |
+
+### Colunas da lista de requisições
+
+Cada linha da lista representa uma requisição:
+
+| Coluna | Descrição |
+| --- | --- |
+| Status | Código HTTP de resposta (ex.: `200`, `201`, `400`, `404`). |
+| Aplicativo | Nome da chave de API que originou a requisição (campo `nome` da chave). |
+| Endpoint | Método HTTP e caminho chamado (ex.: `POST /api/public/v1/cargas`). |
+| IP | Endereço IP de origem da requisição. |
+| Início | Data e hora em que a requisição foi recebida. |
+| Duração | Tempo total de resposta, em milissegundos. |
+| Empresa | Nome da empresa proprietária da chave de API. |
+
+### Painel de detalhes da requisição
+
+Ao clicar em uma linha, abre um painel com três abas:
+
+<CardGroup cols={3}>
+  <Card title="Requisição" icon="arrow-right-to-bracket">
+    Mostra **método**, **endpoint**, **IP** e **User-Agent**, além do **body** enviado pelo cliente em JSON, com opção de exibir formatado e botão para copiar.
+  </Card>
+
+  <Card title="Resposta" icon="arrow-right-from-bracket">
+    Mostra o **status HTTP**, o **tempo** total da resposta e o **body** retornado pela API, também com opções de visualização formatada e cópia.
+  </Card>
+
+  <Card title="Linha do tempo" icon="clock">
+    Marca o instante em que a **requisição foi recebida** e em que a **resposta foi enviada**, com o **total** decorrido entre os dois eventos.
+  </Card>
+</CardGroup>
+
+<Warning>
+  Quando a requisição falha, o **body enviado pelo cliente não é salvo** (mesmo que tenha sido transmitido), por proteção dos dados. As demais informações (status, IP, headers, tempo e body da resposta) continuam disponíveis no log para diagnóstico.
+</Warning>
 
 ## Acessando os logs
 
 <Steps>
   <Step title="Abra a página de logs">
-    Navegue até **Integrações → Logs de integração** na barra lateral.
+    No menu superior, vá em **Integrações → Logs de integração**.
   </Step>
-  <Step title="Revise a tabela de logs">
-    A tabela lista as requisições recentes em ordem cronológica inversa. Cada linha mostra o ID de correlação, status, latência e timestamp de forma rápida.
+  <Step title="Filtre o período e os critérios">
+    Clique em **Filtros** para refinar a lista por status, endpoint, período ou outros critérios. O período ativo aparece em destaque ao lado do botão, junto com o contador de requisições.
   </Step>
-  <Step title="Filtre os resultados">
-    Use o painel de filtros para refinar os resultados por status, intervalo de datas ou pesquise pelo `correlationId`. Os resultados são paginados com controles `page`, `size`, `totalElements` e `totalPages`.
+  <Step title="Acompanhe atualizações em tempo real">
+    O switch **Auto** ativa a atualização automática da lista. O rótulo **Atualizado às HH:MM:SS** indica quando os dados foram carregados pela última vez.
+  </Step>
+  <Step title="Exporte se precisar">
+    Use o botão **Exportar** para baixar os logs filtrados, útil para auditorias ou análise offline.
   </Step>
   <Step title="Abra uma entrada de log">
-    Clique em qualquer linha para abrir a visualização detalhada. Ela mostra os objetos completos de `request` e `response`, status do cache e mensagem de erro se a requisição falhou.
+    Clique em qualquer linha para abrir o painel lateral de detalhes, com as abas **Requisição**, **Resposta** e **Linha do tempo**.
   </Step>
 </Steps>
 
@@ -47,17 +80,17 @@ Cada entrada `RequestLog` captura o contexto completo de uma única requisição
   O acesso a **Logs de integração** requer que a funcionalidade `LOGS_INTEGRACAO` esteja habilitada no seu plano. Entre em contato com o suporte se esta página não estiver disponível na sua conta.
 </Note>
 
-## Usando o correlationId para depuração
+## Logs de webhooks e integrações do marketplace
 
-Cada resposta da API pública da calcANTT inclui um `correlationId`. Quando uma requisição falha ou retorna resultados inesperados, copie o `correlationId` da resposta e use-o para localizar a entrada exata no log:
+Os **Logs de integração** mostram apenas as requisições recebidas via **chave de API**. As demais integrações têm suas próprias trilhas de auditoria, acessadas pelo card de cada uma em **Integrações → API & Marketplace**:
 
-1. Abra **Integrações → Logs de integração**.
-2. Pesquise pelo `correlationId` no painel de filtros.
-3. Abra a entrada correspondente para ver o payload da requisição, corpo da resposta e mensagem de erro.
+| Integração | Onde ver os logs |
+| --- | --- |
+| Webhooks | **Integrações → API & Marketplace** → card do webhook → aba **Logs** |
+| Lincros | **Integrações → API & Marketplace** → card da Lincros → aba **Logs** |
+| Provedores de KM (HERE, Google, TomTom, Mapbox) | **Integrações → API & Marketplace** → card do provedor → aba **Logs** |
 
-<Tip>
-  Inclua o `correlationId` sempre que entrar em contato com o suporte da calcANTT sobre uma requisição específica. Isso permite que a equipe de suporte localize o registro do servidor imediatamente.
-</Tip>
+Em cada card, a aba **Logs** lista as chamadas e eventos recebidos ou enviados para aquela integração específica, útil para diagnosticar entregas de webhook que falharam ou conferir consultas feitas a um provedor de mapas.
 
 ## Trilha de auditoria por carga
 

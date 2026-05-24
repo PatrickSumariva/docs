@@ -1,6 +1,6 @@
 ---
 title: "Gerencie membros da equipe, perfis e acessos na calcANTT"
-description: "Convide membros da equipe, atribua perfis Administrador, Financeiro ou Padrão e gerencie a ativação e o acesso SSO na sua conta empresarial da calcANTT."
+description: "Convide membros da equipe, atribua perfis Administrador, Financeiro ou Padrão e gerencie a ativação dos usuários na sua conta empresarial da calcANTT."
 ---
 
 A calcANTT suporta contas empresariais com múltiplos usuários. Você pode convidar membros da equipe, atribuir perfis e gerenciar acessos em **Configurações → Usuários**. Todos os usuários da conta compartilham os mesmos dados da empresa, e seu plano determina o número máximo de usuários ativos.
@@ -9,7 +9,7 @@ A calcANTT suporta contas empresariais com múltiplos usuários. Você pode conv
 
 <Steps>
   <Step title="Abra a página de Usuários">
-    Navegue até **Configurações → Usuários** na barra lateral.
+    No menu superior, vá em **Configurações → Usuários**.
   </Step>
   <Step title="Clique em Convidar">
     Selecione **Convidar** para abrir o formulário de convite.
@@ -51,7 +51,7 @@ A calcANTT tem três perfis de usuário (`PerfilCliente`), cada um com um nível
   </Card>
 
   <Card title="Financeiro" icon="receipt">
-    Acesso às funcionalidades de faturamento e notas fiscais. Usuários Financeiros podem visualizar e gerenciar informações de pagamento, mas não podem gerenciar outros usuários ou integrações.
+    Acesso às funcionalidades de faturamento. Usuários Financeiros podem gerenciar cartão de pagamento, faturas, ordem de compra (PO) e o plano da empresa, mas não podem gerenciar outros usuários ou integrações.
   </Card>
 
   <Card title="Padrão" icon="user">
@@ -86,10 +86,10 @@ Os usuários podem redefinir a própria senha a qualquer momento sem envolviment
 
 Este fluxo está disponível para todos os usuários independentemente do perfil.
 
-## SSO e login social
+## Login com Google ou Microsoft
 
-A calcANTT suporta login via **Google** e **Microsoft** além de e-mail e senha. Os usuários podem se autenticar com sua conta Google ou Microsoft existente sem precisar de uma senha separada da calcANTT.
+A calcANTT permite que os usuários se autentiquem com sua conta **Google** ou **Microsoft** existente, além do login tradicional com e-mail e senha.
 
 <Info>
-  O login SSO está vinculado ao endereço de e-mail usado quando o usuário foi convidado. O e-mail da conta Google ou Microsoft deve corresponder ao e-mail registrado na calcANTT. Se um membro da equipe não conseguir fazer login pelo seu provedor de identidade, entre em contato com o Administrador da empresa para verificar se o e-mail registrado corresponde à conta SSO.
+  O login com Google ou Microsoft está vinculado ao endereço de e-mail usado quando o usuário foi convidado. O e-mail da conta Google ou Microsoft precisa ser o mesmo registrado na calcANTT. Se um membro da equipe não conseguir entrar pelo provedor escolhido, peça ao Administrador da empresa para conferir se o e-mail registrado corresponde à conta usada para o login.
 </Info>

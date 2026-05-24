@@ -80,7 +80,7 @@ Você também pode marcar vários registros pelas caixas de seleção na lista e
   </Step>
 </Steps>
 
-A cota de importação é controlada pela configuração `limiteImportacaoCargas` do seu plano. Um valor de `-1` significa importações ilimitadas. Linhas que falham na validação são listadas no array `erros` e não consomem sua cota de importação.
+O número máximo de linhas que cada planilha de importação pode ter é controlado pela configuração `limiteImportacaoCargas` do seu plano. Linhas que falham na validação são listadas no array `erros` e não geram registros de carga.
 
 ## Ciclo de vida do status da carga
 

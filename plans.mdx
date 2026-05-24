@@ -3,22 +3,22 @@ title: "Planos da calcANTT: cotas, funcionalidades e limites de uso"
 description: "Os planos da calcANTT definem limites mensais para requisições de API, cálculos, chaves de API e vagas na equipe, além de controlar quais funcionalidades como webhooks e importações estão disponíveis."
 ---
 
-A calcANTT utiliza um modelo de acesso baseado em planos. Seu plano determina quantas requisições de API e cálculos você pode fazer por mês, quantas chaves de API pode gerar, quantos membros de equipe pode adicionar e quais funcionalidades estão habilitadas na sua conta. Todos os limites são resetados mensalmente, e você pode expandir cotas individuais com add-ons sem precisar fazer upgrade do plano inteiro.
+A calcANTT utiliza um modelo de acesso baseado em planos. Seu plano determina quantas requisições de API e cálculos você pode fazer por mês, quantas chaves de API pode gerar, quantos membros de equipe pode adicionar, o tamanho máximo de cada planilha de importação e quais funcionalidades estão habilitadas na sua conta. As cotas mensais (requisições e cálculos) são resetadas a cada ciclo de faturamento, e você pode expandir cotas individuais com add-ons sem precisar fazer upgrade do plano inteiro.
 
 ## Limites do plano
 
-Cada plano define os seguintes limites numéricos. Um valor de `-1` significa que o limite é ilimitado.
+Cada plano define os seguintes limites numéricos.
 
 | Limite | Campo | Descrição |
 | --- | --- | --- |
 | Requisições de API mensais | `limiteRequisicoesMes` | Total de requisições HTTP que suas chaves de API podem fazer na API pública por mês |
 | Cálculos mensais | `limiteCalculosMes` | Número de cálculos de frete (`POST /api/public/v1/calculadora/calcular`) por mês |
 | Chaves de API | `limiteApiKeys` | Número máximo de chaves de API ativas que sua conta pode ter simultaneamente |
-| Cota de importação Excel | `limiteImportacaoCargas` | Número máximo de registros de carga importados via Excel por mês. `0` significa que a funcionalidade está desabilitada; `-1` significa ilimitado |
+| Linhas por importação Excel | `limiteImportacaoCargas` | Número máximo de linhas que cada planilha de importação de cargas pode ter. `0` significa que a funcionalidade está desabilitada no seu plano |
 | Vagas na equipe | `limiteUsuarios` | Número máximo de contas de usuário que podem ser adicionadas à sua empresa |
 
 <Info>
-  Você pode verificar seu uso atual em relação a cada limite a qualquer momento. Acesse **Configurações → Faturamento** no painel, ou veja o cartão de resumo de uso na tela inicial do painel.
+  Você pode verificar seu uso atual em relação a cada limite a qualquer momento. Acesse **Configurações → Plano** no painel, ou veja o cartão de resumo de uso na tela inicial do painel.
 </Info>
 
 ## Funcionalidades habilitadas por plano
@@ -58,7 +58,7 @@ Se você precisar de mais capacidade sem trocar de plano, pode adquirir add-ons 
 | `REQUISICOES` | Cota mensal de requisições de API (`limiteRequisicoesMes`) |
 | `API_KEY` | Número de chaves de API permitidas (`limiteApiKeys`) |
 | `CALCULOS` | Cota mensal de cálculos (`limiteCalculosMes`) |
-| `IMPORTACAO` | Cota mensal de importação Excel (`limiteImportacaoCargas`) |
+| `IMPORTACAO` | Número de linhas permitidas por planilha de importação Excel (`limiteImportacaoCargas`) |
 
 Cada add-on tem um valor de `incremento` que especifica quanto o limite aumenta por unidade adquirida. Para solicitar um add-on, acesse **Configurações → Plano** e navegue pelos add-ons disponíveis para o seu plano.
 

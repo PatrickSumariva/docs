@@ -54,7 +54,21 @@ Respostas para dúvidas comuns sobre o uso da calcANTT, interpretação de cálc
     | `11` | `PERIGOSA_CARGA_GERAL` | Perigosa (carga geral) |
     | `12` | `GRANEL_PRESSURIZADA` | Carga Granel Pressurizada |
 
-    O tipo de carga afeta quais multiplicadores e componentes de taxa se aplicam ao cálculo. Se não tiver certeza sobre qual tipo selecionar, consulte o documento de transporte (CT-e) ou a sua equipe de operações.
+    O tipo de carga afeta quais multiplicadores e componentes de taxa se aplicam ao cálculo.
+  </Accordion>
+
+  <Accordion title="O que fazer quando a carga tem mais de um tipo?">
+    Quando o veículo transporta mais de um tipo de carga em uma mesma operação, a ANTT orienta calcular o piso **para cada tipo de carga presente** e considerar como piso devido **o maior valor obtido** entre os cálculos.
+
+    Na prática:
+
+    1. Liste todos os tipos de carga presentes na composição.
+    2. Faça um cálculo na calcANTT para cada tipo (mantendo os mesmos eixos, distância, data e demais parâmetros, mudando apenas o `tipoCargaId`).
+    3. Compare os `valorTotal` retornados e adote o **maior** como piso mínimo da operação.
+
+    <Tip>
+      Ao registrar a carga na plataforma, use o tipo cujo cálculo resultou no maior valor para preservar a verificação automática de `valorAtendido` contra o piso correto.
+    </Tip>
   </Accordion>
 
   <Accordion title="O que é uma operação de transporte de alto desempenho?">
@@ -84,6 +98,10 @@ Respostas para dúvidas comuns sobre o uso da calcANTT, interpretação de cálc
       Atenção ao caso menos óbvio: veículos simples que não permitem desacoplar o implemento (a carroceria ou unidade de carga é fixa, presa ao veículo) também são considerados composição. Nesses casos, marque `composicao: true` mesmo que o veículo tenha uma única unidade.
     </Note>
 
+    <Note>
+      Quando o contratante fornece o próprio implemento (carroceria, semirreboque, baú, tanque etc.) e contrata apenas o **veículo de tração** (cavalo mecânico ou caminhão), a contratação **não é considerada composição** sob a ótica da ANTT. Nesse caso, marque `composicao: false`, mesmo que o conjunto rodando na via tenha mais de uma unidade.
+    </Note>
+
     Marcar essa opção incorretamente altera o piso calculado, então confirme a configuração do veículo antes de calcular.
   </Accordion>
 
@@ -110,22 +128,6 @@ Respostas para dúvidas comuns sobre o uso da calcANTT, interpretação de cálc
     Você seleciona a tabela mais adequada para a sua operação e a registra no cadastro de carga. Essa seleção é o que a verificação de conformidade (`valorAtendido`) usa para determinar se o valor de frete declarado atende ao mínimo legal.
   </Accordion>
 
-  <Accordion title="O que significa cacheHit: true na resposta da API?">
-    A calcANTT armazena resultados de cálculos em cache no Redis. Quando você envia uma requisição com parâmetros idênticos (mesmo tipo de veículo, tipo de carga, distância e data) a uma requisição anterior recente, o sistema serve o resultado diretamente do cache em vez de recalcular do zero.
-
-    Uma resposta em cache é indicada por `"cacheHit": true` no corpo da resposta. O resultado é **idêntico** a um cálculo recém-executado; nada é aproximado ou estimado. Resultados em cache respondem mais rápido, mas ainda contam para as cotas mensais de cálculo e requisições.
-
-    ```json
-    {
-      "cacheHit": true,
-      "correlationId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-      "calculadoEm": "2025-03-15T10:42:00Z"
-    }
-    ```
-
-    Se precisar forçar um novo cálculo (por exemplo, após uma atualização de tabela), entre em contato com o suporte para limpar o cache para os seus parâmetros específicos.
-  </Accordion>
-
   <Accordion title="O que significa valorAtendido?">
     `valorAtendido` é definido em cada registro de carga após a execução do cálculo de frete. Reflete se o `valorFrete` declarado (o preço acordado no contrato) atende ao mínimo da ANTT:
 
@@ -139,16 +141,16 @@ Respostas para dúvidas comuns sobre o uso da calcANTT, interpretação de cálc
   </Accordion>
 
   <Accordion title="O que acontece quando atinjo meu limite mensal?">
-    A calcANTT aplica os limites definidos pelo seu plano (`limiteRequisicoesMes`, `limiteCalculosMes`, `limiteImportacaoCargas`). Quando um limite é atingido:
+    A calcANTT aplica os limites definidos pelo seu plano. Quando um limite é atingido:
 
     - **Requisições de API** além de `limiteRequisicoesMes` são rejeitadas com erro HTTP `429`.
     - **Cálculos** além de `limiteCalculosMes` são bloqueados.
-    - **Importações Excel** além de `limiteImportacaoCargas` são rejeitadas.
+    - **Planilhas de importação Excel** com mais linhas do que o `limiteImportacaoCargas` do seu plano são rejeitadas. Esse limite vale por planilha, não há cota mensal.
 
     Você tem duas opções para restaurar o acesso antes da renovação do ciclo:
 
-    1. **Adquira um add-on**: em **Configurações → Plano**, solicite um add-on `REQUISICOES`, `CALCULOS` ou `IMPORTACAO` para aumentar a cota específica que você esgotou.
-    2. **Aguarde o próximo ciclo de faturamento**: seus contadores são resetados automaticamente no início do próximo período. Você pode ver quantos dias faltam em `diasRestantesCiclo` na página do Plano.
+    1. **Adquira um add-on**: em **Configurações → Plano**, solicite um add-on `REQUISICOES`, `CALCULOS` ou `IMPORTACAO` para aumentar a capacidade específica que você esgotou.
+    2. **Aguarde o próximo ciclo de faturamento**: as cotas mensais (`limiteRequisicoesMes` e `limiteCalculosMes`) são resetadas automaticamente no início do próximo período. Você pode ver quantos dias faltam em `diasRestantesCiclo` na página do Plano.
 
     <Warning>
       Os limites são aplicados em tempo real. Requisições enviadas após o limite ser atingido não são enfileiradas, elas falham imediatamente e devem ser reenviadas quando a cota estiver disponível.
@@ -171,27 +173,8 @@ Respostas para dúvidas comuns sobre o uso da calcANTT, interpretação de cálc
     O número de chaves de API que você pode ter ativas ao mesmo tempo é controlado pelo `limiteApiKeys` do seu plano. Se você atingiu esse limite, revogue uma chave não utilizada antes de criar uma nova, ou adquira um add-on `API_KEY` para aumentar o limite.
   </Accordion>
 
-  <Accordion title="O que é o correlationId nas respostas da API?">
-    Cada requisição de API processada pela calcANTT recebe um `correlationId` único, um UUID gerado no servidor e incluído em todas as respostas, incluindo respostas de erro.
-
-    ```json
-    {
-      "correlationId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-      "valorMinimo": 1250.00,
-      "valorCalculado": 1250.00
-    }
-    ```
-
-    Use o `correlationId` para:
-
-    - **Localizar uma requisição específica** em **Integrações → Logs** pesquisando ou filtrando pelo ID de correlação.
-    - **Contatar o suporte**: sempre inclua o `correlationId` ao reportar um resultado inesperado ou erro. Isso permite que a equipe calcANTT recupere a entrada exata do log do servidor e reproduza o problema.
-
-    O `correlationId` é a forma mais rápida de rastrear qualquer requisição de ponta a ponta.
-  </Accordion>
-
   <Accordion title="O cálculo de distância por CEP funciona sem configuração extra?">
-    Não. O cálculo de distância por CEP requer uma **integração de mapas** ativa configurada na sua conta. A calcANTT suporta os seguintes provedores pelo marketplace de Integrações:
+    Não. O cálculo de distância por CEP requer uma **integração de mapas** ativa na sua conta. A calcANTT suporta os seguintes provedores pelo marketplace de Integrações:
 
     - **HERE Maps**
     - **Google Maps**
@@ -200,11 +183,16 @@ Respostas para dúvidas comuns sobre o uso da calcANTT, interpretação de cálc
 
     Para habilitar o roteamento por CEP:
 
-    1. Acesse **Integrações → API & Marketplace**.
-    2. Encontre o provedor de mapas de sua preferência e ative a integração.
-    3. Insira suas credenciais de API para esse provedor.
+    1. Contrate o **add-on do provedor** desejado em **Configurações → Plano**.
+    2. Acesse **Integrações → API & Marketplace** e **ative** o card do provedor no Marketplace.
+
+    As chaves de API dos provedores são mantidas pela própria calcANTT, você não precisa cadastrar credenciais.
 
     Uma vez configurado, você pode fornecer CEPs de origem e destino em vez de `distanciaKm`, e a calcANTT resolverá a distância da rota automaticamente antes de calcular o frete.
+
+    <Info>
+      Durante o período de trial, a integração com a **HERE** é fornecida gratuitamente para que você teste o cálculo de distância por CEP sem precisar contratar um add-on.
+    </Info>
 
     Se nenhuma integração de mapas estiver ativa, você deve informar `distanciaKm` manualmente em cada requisição de cálculo. Requisições que incluam apenas CEPs sem uma integração de mapas ativa retornarão um erro de validação.
   </Accordion>

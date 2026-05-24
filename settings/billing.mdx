@@ -1,102 +1,163 @@
 ---
-title: "Gerencie faturamento, uso do plano e add-ons na calcANTT"
-description: "Visualize o uso de cotas em tempo real, gerencie seu ciclo de faturamento e faturas, solicite add-ons para expandir limites e gerencie a expiração do trial na calcANTT."
+title: "Acompanhe seu plano, contrate add-ons e gerencie pagamentos"
+description: "Veja o consumo do seu plano, contrate add-ons e troque de plano em Configurações → Plano. Gerencie cartão, faturas, ordem de compra (PO) e cancelamento em Configurações → Faturamento."
 ---
 
-A página de Faturamento mostra seu plano atual, métricas de uso em tempo real, histórico de faturas e add-ons disponíveis para expandir suas cotas. Navegue até **Configurações → Faturamento** para acessar todas as informações de pagamento e assinatura da sua empresa.
+A calcANTT separa o gerenciamento da sua conta em duas páginas distintas:
 
-## Visão geral do plano atual
+- **Configurações → Plano**: mostra o **plano atual** e o **consumo do ciclo** (requisições, cálculos, chaves de API, usuários e importação de cargas). É onde você contrata **add-ons** e troca de plano.
+- **Configurações → Faturamento**: gerencia o **pagamento** da sua assinatura: cartão, próxima fatura, ordem de compra (PO), histórico de faturas e cancelamento.
 
-Seu plano ativo e seus limites efetivos são exibidos no topo da página de Faturamento. Os seguintes campos vêm do registro do plano da sua empresa:
+## Configurações → Plano
 
-| Campo | Descrição |
-| --- | --- |
-| `planoNome` | Nome de exibição do seu plano atual (ex.: Starter, Professional). |
-| `planoDescricao` | Breve descrição do que o plano inclui. |
-| `limiteRequisicoesMes` | Máximo de requisições de API por ciclo de faturamento. `-1` significa ilimitado. |
-| `utilizadoRequisicoes` | Requisições de API consumidas no ciclo atual. |
-| `limiteCalculosMes` | Máximo de cálculos por ciclo de faturamento. `-1` significa ilimitado. |
-| `utilizadoCalculos` | Cálculos consumidos no ciclo atual. |
-| `limiteApiKeys` | Máximo de chaves de API que você pode criar simultaneamente. |
-| `utilizadoApiKeys` | Chaves de API atualmente ativas. |
-| `limiteImportacaoCargas` | Máximo de linhas de importação Excel de cargas por ciclo. `0` significa que a funcionalidade está desabilitada no seu plano. |
-| `diasRestantesCiclo` | Dias restantes no período de faturamento atual. |
-| `diasDecorridosNoCiclo` | Dias decorridos desde o início do período (1 no primeiro dia). |
-| `diasTotaisNoCiclo` | Total de dias no período de faturamento atual. |
+A página **Plano** começa indicando qual empresa você está visualizando. Em contas com mais de uma empresa, use **Trocar empresa ativa** no menu da empresa para alternar entre elas.
 
-As barras de uso na página do Plano fornecem um detalhamento visual de quanto de cada cota você consumiu até agora no ciclo.
+### Seu plano atual
 
-<Info>
-  Limites marcados como `-1` são ilimitados e não exibirão barra de uso. Limites marcados como `0` indicam uma funcionalidade não incluída no seu plano.
-</Info>
+O cartão **Seu plano atual** mostra o nome do plano contratado (por exemplo, **Free**, **Starter** ou um plano sob medida) e uma breve descrição do que ele oferece.
 
-## Planos trial
+#### Durante o trial
 
-Novas contas podem começar em um plano trial para explorar a calcANTT antes de assinar um plano pago. Campos específicos do trial exibidos na sua página de Faturamento:
+Contas em período de avaliação veem o cartão **Trial** com:
 
-| Campo | Descrição |
-| --- | --- |
-| `trialTerminaEm` | O último dia do seu período trial (formato: `yyyy-MM-dd`). |
-| `diasRestantesTrial` | Contagem regressiva dos dias restantes no trial (inclusivo, fuso horário de São Paulo). |
-| `duracaoTrialDias` | Duração total do trial em dias, usado para renderizar a barra de progresso. |
+- Uma **barra de progresso** indicando quantos dias do trial já foram usados (ex.: *5 / 15 dias usados*).
+- A data de encerramento e o número de dias restantes (ex.: *Encerra em 02/06/2026 · 10 dias restantes*).
+- Um botão **Contratar plano** para evoluir para um plano pago.
 
 <Warning>
-  Quando o período trial terminar, o acesso às funcionalidades pagas pode ser restrito até que você selecione um plano pago. Faça o upgrade antes de `trialTerminaEm` para evitar qualquer interrupção. A calcANTT envia notificações conforme a data de término do trial se aproxima.
+  Quando o trial termina sem contratação de um plano pago, sua conta é convertida automaticamente para o plano **Free**, com limites menores e funcionalidades reduzidas. A calcANTT envia avisos por **notificação dentro da plataforma** conforme a data de término se aproxima.
 </Warning>
 
-A calcANTT envia notificações por e-mail em pontos-chave do ciclo de vida do trial: quando o trial começa, quando a data de término se aproxima e quando o trial expira e sua conta é convertida para o plano Free.
+### Consumo do ciclo atual
 
-## Add-ons
+O cartão **Consumo do ciclo atual** lista o uso do mês corrente e quando ele será renovado (ex.: *Renova em 7 dias*). Cada linha mostra o uso e o limite no formato *X de Y*, com barra de progresso quando aplicável:
 
-Os add-ons permitem expandir limites específicos de uso sem alterar seu plano base. Se seu plano tem `permiteContratarAddons` habilitado, você pode solicitar add-ons diretamente na página **Configurações → Plano**.
+| Métrica | O que mede |
+| --- | --- |
+| Requisições/mês | Chamadas REST feitas com chave de API pelas suas integrações externas. |
+| Cálculos/mês | Cálculos de frete realizados (calculadora web, registros de carga e API pública). |
+| API Keys | Chaves de API ativas que você criou. |
+| Usuários | Membros ativos da sua empresa na plataforma. |
+| Importação de cargas | Linhas máximas que cada planilha de importação pode ter, exibido como **Até N linhas por arquivo**. Em planos sem a funcionalidade, aparece como **Não disponível no seu plano**. |
 
-### Tipos de add-on
+Limites sem teto aparecem como **Ilimitado**, sem barra de uso.
+
+<Tip>
+  Quando alguma cota chega perto do limite, contrate um add-on específico (sem trocar de plano) ou faça upgrade pela seção **Planos disponíveis** logo abaixo na mesma página.
+</Tip>
+
+### Planos disponíveis
+
+A seção **Planos disponíveis** lista as opções para a empresa atual. Você pode contratar outro plano com a mesma assinatura no cartão diretamente pela tela. A cobrança hoje é feita exclusivamente por **cartão de crédito**.
+
+### Add-ons
+
+Os add-ons ampliam um limite específico sem precisar trocar para um plano superior. Você gerencia os add-ons em **Configurações → Plano**. Também há um atalho **Gerenciar addons** dentro do cartão **Plano atual** em **Configurações → Faturamento**, que leva direto para a mesma área.
+
+#### Tipos de add-on
 
 | Tipo | O que expande |
 | --- | --- |
-| `REQUISICOES` | Requisições de API mensais adicionais além do limite base do seu plano. |
-| `API_KEY` | Vagas adicionais de chaves de API além do limite do seu plano. |
-| `CALCULOS` | Cálculos mensais adicionais. |
-| `IMPORTACAO` | Capacidade adicional de importação Excel (linhas por ciclo). |
-| `RECURSO` | Habilita uma integração ou conector de marketplace específico (ex.: um provedor de mapas para roteamento por CEP). |
+| Requisições | Cota mensal de requisições da API REST. |
+| API Keys | Vagas adicionais de chaves de API. |
+| Cálculos | Cota mensal de cálculos. |
+| Importação | Linhas adicionais por planilha de importação Excel. |
+| Recurso | Habilita uma integração específica do marketplace (ex.: um provedor de mapas como HERE ou Google). |
 
-### Ciclo de vida do add-on
+#### Ciclo de vida do add-on
 
-Após solicitar um add-on, ele passa pelos seguintes status:
-
-```text
-SOLICITADO → ATIVO → CANCELAMENTO_AGENDADO → CANCELADO
-```
+Cada add-on solicitado passa pelos seguintes estados:
 
 | Status | Significado |
 | --- | --- |
-| `SOLICITADO` | Sua solicitação foi enviada e está aguardando aprovação da equipe calcANTT. |
-| `ATIVO` | O add-on foi aprovado e seu incremento de cota foi aplicado à sua conta. |
-| `CANCELAMENTO_AGENDADO` | Você solicitou o cancelamento; o add-on permanece ativo até a data de encerramento agendada. |
-| `CANCELADO` | O add-on foi totalmente cancelado e o incremento de cota removido. |
+| **Solicitado** | A solicitação foi enviada e aguarda aprovação da equipe calcANTT. |
+| **Ativo** | O add-on foi aprovado e o incremento já está somado à sua cota. |
+| **Cancelamento agendado** | Você pediu o cancelamento; o add-on permanece ativo até o fim do ciclo agendado. |
+| **Cancelado** | O add-on foi encerrado e o incremento removido. |
+| **Rejeitado** | A equipe calcANTT recusou a solicitação. O motivo é exibido no próprio add-on. |
 
-Uma solicitação rejeitada pela equipe calcANTT mostrará o status `REJEITADO` junto com o motivo da rejeição.
+## Configurações → Faturamento
 
-<Note>
-  O campo `incremento` em cada add-on ativo mostra exatamente quantas unidades ele adiciona à sua cota. Por exemplo, um add-on `CALCULOS` com `incremento: 500` dá a você 500 cálculos adicionais por ciclo.
-</Note>
+A página **Faturamento** reúne tudo sobre a cobrança da sua assinatura: plano contratado, faturas, método de pagamento e dados de cobrança.
 
-## Faturamento via Stripe
+### Plano atual e itens do período
 
-Planos vinculados a um produto Stripe (`stripeProductId`) são cobrados automaticamente pelo Stripe. Na página de Faturamento você pode:
+O cartão **Plano atual** repete o nome do plano e mostra:
 
-- Ver o status atual da sua assinatura e a próxima data de cobrança.
-- Ver a próxima fatura e o valor devido.
-- Atualizar o método de pagamento (cartão de crédito ou débito).
-- Baixar ou revisar o histórico de faturas.
-- Adicionar um número de Ordem de Compra (OC) às suas faturas se sua equipe financeira exigir.
+- **Ciclo de cobrança** atual (ex.: *12/05/2026 a 11/06/2026*).
+- **Itens do período**, com o valor de cada um (plano e eventuais add-ons).
+- **Total** que será cobrado.
+- Botão **Fazer upgrade**, atalho para trocar de plano.
+- Link **Gerenciar addons**, atalho para a área de add-ons em **Configurações → Plano**.
 
-Para quaisquer outras solicitações de faturamento (como trocar para transferência bancária, solicitar uma cópia de uma fatura anterior ou contestar uma cobrança), entre em contato com o suporte da calcANTT e inclua o número da fatura ou o `correlationId`.
+### Forma de pagamento
+
+O cartão **Forma de pagamento** exibe o cartão atualmente em uso (bandeira, últimos dígitos e validade) e o seu status (**Ativo**). Clique em **Trocar cartão** para abrir o checkout seguro da Stripe e cadastrar um cartão novo.
+
+### Cobrança de upgrades e add-ons
+
+Upgrades de plano e contratação de add-ons passam a valer **imediatamente**, mas a cobrança correspondente é **adicionada à próxima fatura**, não há cobrança no ato.
+
+Quando essa próxima fatura é emitida, ela inclui:
+
+- O **valor proporcional** aos dias do ciclo atual em que o upgrade ou add-on já esteve ativo.
+- O **valor mensal cheio** do plano e dos add-ons referente ao ciclo seguinte.
 
 <Info>
-  Para fazer upgrade do plano, clique em **Tenho interesse** em qualquer card de plano na seção **Planos disponíveis** de **Configurações → Plano**, ou entre em contato diretamente com a equipe calcANTT. Se sua assinatura atual é cobrada por cartão de crédito e está ativa, pode ser possível migrar de plano diretamente pela interface sem contatar o suporte.
+  **Exemplo**: se o seu ciclo de cobrança fecha todo dia 01 e você ativa um add-on no dia 15, no próximo dia 01 a fatura traz os 15 dias proporcionais (referentes ao restante do mês corrente) somados ao valor mensal cheio do mês seguinte.
 </Info>
 
-## Cancelamento de conta
+### Próxima fatura
 
-A página de Faturamento também contém a seção de cancelamento de conta. Se você solicitar a exclusão da conta, ela entra em um período de carência antes da remoção permanente. A data de exclusão agendada é exibida em um banner de aviso no topo da página de Faturamento. Você pode cancelar a solicitação de exclusão e reativar seu plano nesse mesmo banner antes que o período de carência expire.
+O cartão **Próxima fatura** projeta a próxima cobrança:
+
+| Campo | Descrição |
+| --- | --- |
+| Período | Ciclo a que a fatura se refere (ex.: *12/06/2026 a 11/07/2026*). |
+| Data prevista | Quando a fatura será emitida e cobrada. |
+| Valor estimado | Total previsto, considerando plano e add-ons ativos. |
+| Forma de pagamento | Cartão que será usado para a cobrança. |
+
+### Número de pedido (PO)
+
+Use o cartão **Número de pedido (PO)** quando sua equipe financeira exigir uma ordem de compra nas faturas. Há três campos complementares:
+
+- **PO para o próximo faturamento**: número aplicado à próxima fatura. Pode ser editado até o prazo indicado na tela (ex.: *Prazo para inserção: até 11/06/2026*).
+- **POs antecipadas**: cadastre POs específicas para meses futuros. Quando houver PO específica para o mês, ela é usada; caso contrário, cai no PO padrão.
+- **PO padrão**: número aplicado automaticamente todo mês quando não houver PO específico. Ao salvar, faturas pendentes sem PO passam a usar esse valor.
+
+### Histórico de faturas
+
+A seção **Histórico de faturas** lista todas as faturas emitidas para a empresa, com filtros e botão **Atualizar** para recarregar. Cada linha exibe:
+
+| Coluna | Descrição |
+| --- | --- |
+| Número | Identificador da fatura (ex.: `FAT-0000-0001`). |
+| Período | Ciclo coberto pela fatura. |
+| Emissão | Data de emissão. |
+| Vencimento | Data limite de pagamento. |
+| Pagamento | Data em que a fatura foi paga (vazio se ainda em aberto). |
+| Valor | Valor cobrado. |
+| Forma | Forma de pagamento usada (ex.: cartão final 2979). |
+| PO | Ordem de compra associada, se houver. |
+| Status | Estado atual da fatura (**Pago**, **Em aberto**, **Vencida** etc.). |
+
+Para outras solicitações de faturamento (solicitar uma cópia de uma fatura anterior, contestar uma cobrança etc.), entre em contato com o suporte da calcANTT e informe o número da fatura.
+
+### Encerramento
+
+A seção **Encerramento** concentra as opções de cancelamento:
+
+<CardGroup cols={2}>
+  <Card title="Cancelar plano" icon="circle-xmark">
+    Ao cancelar, você mantém o acesso até o **fim do ciclo atual**. Depois disso, a conta é **rebaixada automaticamente para o plano Free**, mantendo seus dados e configurações.
+  </Card>
+
+  <Card title="Excluir conta" icon="trash">
+    A exclusão é definitiva e **irreversível após 30 dias**. Todos os dados são removidos permanentemente. Faturas em aberto devem ser quitadas antes da exclusão.
+  </Card>
+</CardGroup>
+
+<Warning>
+  Antes de excluir a conta, quite todas as faturas pendentes. Durante o período de carência, você ainda pode desfazer a solicitação de exclusão e reativar o plano no banner exibido no topo da página de Faturamento.
+</Warning>

@@ -10,7 +10,7 @@ O marketplace de integrações da calcANTT permite conectar plataformas logísti
 As integrações são agrupadas por `CategoriaIntegracao` para ajudar você a encontrar o que precisa:
 
 <CardGroup cols={2}>
-  <Card title="ERP" icon="building-2">
+  <Card title="ERP" icon="building">
     Sistemas de gestão empresarial. Sincronize fretes, registros de carga e dados de custo diretamente com seu ERP.
   </Card>
 
@@ -41,8 +41,12 @@ A calcANTT suporta os seguintes provedores de mapas:
 | `mapbox` | Mapbox |
 
 <Note>
-  Cada provedor de mapas requer sua própria chave de API. Após ativar o card de integração, abra o painel de configuração para inserir sua chave de API do provedor. Você é responsável por manter uma assinatura válida com o provedor.
+  As chaves de API dos provedores de mapas são mantidas pela própria calcANTT, você não precisa fornecer credenciais. Para usar um provedor, é necessário **contratar o add-on correspondente** em **Configurações → Plano** e mantê-lo **ativo no Marketplace** (**Integrações → API & Marketplace**).
 </Note>
+
+<Info>
+  Durante o período de trial, a integração com a **HERE** é fornecida gratuitamente para que você teste o cálculo de distância por CEP sem precisar contratar um add-on.
+</Info>
 
 ## Integração Lincros
 
@@ -60,7 +64,7 @@ Para configurar o Lincros, ative o card no marketplace e siga os passos de conex
     Navegue ou pesquise pela integração desejada. Cards indisponíveis no seu plano atual aparecem com um ícone de cadeado, o campo `disponivel` da integração controla isso.
   </Step>
   <Step title="Clique em Ativar">
-    Clique no botão **Ativar** no card. Um painel de configuração abre se a integração exigir ajustes adicionais (como uma chave de API do provedor).
+    Clique no botão **Ativar** no card. Para provedores de mapas (HERE, Google, TomTom, Mapbox), basta deixar a integração ativa, a calcANTT cuida das chaves. Outras integrações (como Lincros ou ERPs) podem abrir um painel de configuração para você informar credenciais ou parâmetros do seu lado.
   </Step>
   <Step title="Conclua a configuração">
     Preencha os campos obrigatórios no painel de configuração e salve. O card é atualizado para mostrar a integração como ativa.
@@ -68,7 +72,7 @@ Para configurar o Lincros, ative o card no marketplace e siga os passos de conex
 </Steps>
 
 <Info>
-  Algumas integrações exigem um add-on do tipo `RECURSO` que não está incluído no seu plano base. Se o card estiver bloqueado, acesse **Configurações → Faturamento** para solicitar o add-on ou fazer upgrade do seu plano.
+  Algumas integrações exigem um add-on do tipo `RECURSO` que não está incluído no seu plano base. Se o card estiver bloqueado, acesse **Configurações → Plano** para solicitar o add-on ou fazer upgrade do seu plano.
 </Info>
 
 ## Verificando a disponibilidade de uma integração
