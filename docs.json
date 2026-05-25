@@ -5,6 +5,10 @@
     "light": "/logos/logo-horizontal-principal.svg",
     "dark": "/logos/logo-horizontal-secundario.svg"
   },
+  "favicon": {
+    "light": "/logos/favicon.svg",
+    "dark": "/logos/favicon-dark.svg"
+  },
   "description": "Documentação da calcANTT: calcule o frete mínimo da tabela ANTT via API REST ou pela plataforma web.",
   "theme": "almond",
   "colors": {
